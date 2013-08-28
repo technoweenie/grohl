@@ -6,7 +6,7 @@ README and convert them to go.
 Here's an example of a log you might specify in your application:
 
 ```go
-import "github.com/technoweenie/go-scrolls/scrolls"
+import "github.com/technoweenie/go-scrolls"
 
 scrolls.Log(map[string]string{
   "fn": "trap", "signal": s, "at": "exit", "status": "0"

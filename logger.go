@@ -8,38 +8,55 @@ import (
 )
 
 type Logger struct {
-	Stream io.Writer
+	Stream  io.Writer
+	context map[string]interface{}
 }
 
 func NewLogger(stream io.Writer) *Logger {
 	if stream == nil {
 		stream = os.Stdout
 	}
-	return &Logger{stream}
+	return &Logger{stream, make(map[string]interface{})}
 }
 
-func (l *Logger) Log(context map[string]interface{}) {
-	l.Stream.Write([]byte(l.buildLine(context)))
+func (l *Logger) Log(data map[string]interface{}) {
+	l.Stream.Write([]byte(l.buildLine(data)))
 }
 
-func (l *Logger) buildLine(context map[string]interface{}) string {
-	if context != nil {
-		return l.convertContext(context)
+func (l *Logger) AddContext(key string, value interface{}) {
+	l.context[key] = value
+}
+
+func (l *Logger) buildLine(data map[string]interface{}) string {
+	if data != nil {
+		return l.convertData(data)
 	} else {
 		return empty
 	}
 }
 
-func (l *Logger) convertContext(context map[string]interface{}) string {
-	pieces := make([]string, len(context))
-	index := 0
+func (l *Logger) convertData(data map[string]interface{}) string {
+	merged := make(map[string]interface{})
+	mergeMaps(l.context, merged)
+	mergeMaps(data, merged)
 
-	for key, value := range context {
+	pieces := make([]string, len(merged))
+	l.convertDataMap(merged, pieces)
+	return strings.Join(pieces, space)
+}
+
+func (l *Logger) convertDataMap(data map[string]interface{}, pieces []string) {
+	index := 0
+	for key, value := range data {
 		pieces[index] = fmt.Sprintf("%s=%s", key, value)
 		index = index + 1
 	}
+}
 
-	return strings.Join(pieces, space)
+func mergeMaps(original map[string]interface{}, copy map[string]interface{}) {
+	for key, value := range original {
+		copy[key] = value
+	}
 }
 
 const (

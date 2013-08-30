@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestLogContext(t *testing.T) {
+func TestLogData(t *testing.T) {
 	logger, buf := loggerWithBuffer()
 	logger.Log(map[string]interface{}{
 		"a": "1", "b": "2",
@@ -16,7 +16,21 @@ func TestLogContext(t *testing.T) {
 	}
 }
 
-func TestLogEmptyContext(t *testing.T) {
+func TestLogDataWithContext(t *testing.T) {
+	logger, buf := loggerWithBuffer()
+	logger.AddContext("a", "1")
+	logger.AddContext("b", "1")
+
+	logger.Log(map[string]interface{}{
+		"b": "2", "c": "3",
+	})
+
+	if result := buf.String(); result != "a=1 b=2 c=3" {
+		t.Errorf("Bad log output: %s", result)
+	}
+}
+
+func TestLogEmptyData(t *testing.T) {
 	logger, buf := loggerWithBuffer()
 	logger.Log(nil)
 

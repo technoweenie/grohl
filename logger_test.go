@@ -16,6 +16,23 @@ func TestLogData(t *testing.T) {
 	}
 }
 
+func TestContextOjbect(t *testing.T) {
+	logger, buf := loggerWithBuffer()
+	logger.AddContext("a", "1")
+	logger.AddContext("b", "1")
+	context := logger.NewContext(map[string]interface{}{
+		"b": "2", "c": "2",
+	})
+
+	context.Log(map[string]interface{}{
+		"c": "3", "d": "4",
+	})
+
+	if result := buf.String(); result != "a=1 b=2 c=3 d=4" {
+		t.Errorf("Bad log output: %s", result)
+	}
+}
+
 func TestLogDataWithContext(t *testing.T) {
 	logger, buf := loggerWithBuffer()
 	logger.AddContext("a", "1")

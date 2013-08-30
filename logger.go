@@ -13,14 +13,25 @@ type Logger struct {
 }
 
 func NewLogger(stream io.Writer) *Logger {
+	return NewLoggerWithContext(stream, make(map[string]interface{}))
+}
+
+func NewLoggerWithContext(stream io.Writer, context map[string]interface{}) *Logger {
 	if stream == nil {
 		stream = os.Stdout
 	}
-	return &Logger{stream, make(map[string]interface{})}
+	return &Logger{stream, context}
 }
 
 func (l *Logger) Log(data map[string]interface{}) {
 	l.Stream.Write([]byte(l.buildLine(data)))
+}
+
+func (l *Logger) NewContext(data map[string]interface{}) *Logger {
+	ctx := make(map[string]interface{})
+	mergeMaps(l.context, ctx)
+	mergeMaps(data, ctx)
+	return NewLoggerWithContext(l.Stream, ctx)
 }
 
 func (l *Logger) AddContext(key string, value interface{}) {

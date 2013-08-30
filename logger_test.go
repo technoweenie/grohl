@@ -7,7 +7,7 @@ import (
 
 func TestLogContext(t *testing.T) {
 	logger, buf := loggerWithBuffer()
-	logger.Log(map[string]string{
+	logger.Log(map[string]interface{}{
 		"a": "1", "b": "2",
 	})
 

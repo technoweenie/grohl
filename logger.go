@@ -18,11 +18,11 @@ func NewLogger(stream io.Writer) *Logger {
 	return &Logger{stream}
 }
 
-func (l *Logger) Log(context map[string]string) {
+func (l *Logger) Log(context map[string]interface{}) {
 	l.Stream.Write([]byte(l.buildLine(context)))
 }
 
-func (l *Logger) buildLine(context map[string]string) string {
+func (l *Logger) buildLine(context map[string]interface{}) string {
 	if context != nil {
 		return l.convertContext(context)
 	} else {
@@ -30,7 +30,7 @@ func (l *Logger) buildLine(context map[string]string) string {
 	}
 }
 
-func (l *Logger) convertContext(context map[string]string) string {
+func (l *Logger) convertContext(context map[string]interface{}) string {
 	pieces := make([]string, len(context))
 	index := 0
 

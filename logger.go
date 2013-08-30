@@ -27,15 +27,11 @@ func (l *Logger) AddContext(key string, value interface{}) {
 	l.context[key] = value
 }
 
-func (l *Logger) buildLine(data map[string]interface{}) string {
-	if data != nil {
-		return l.convertData(data)
-	} else {
-		return empty
-	}
+func (l *Logger) DeleteContext(key string) {
+	delete(l.context, key)
 }
 
-func (l *Logger) convertData(data map[string]interface{}) string {
+func (l *Logger) buildLine(data map[string]interface{}) string {
 	merged := make(map[string]interface{})
 	mergeMaps(l.context, merged)
 	mergeMaps(data, merged)
@@ -54,6 +50,10 @@ func (l *Logger) convertDataMap(data map[string]interface{}, pieces []string) {
 }
 
 func mergeMaps(original map[string]interface{}, copy map[string]interface{}) {
+	if original == nil {
+		return
+	}
+
 	for key, value := range original {
 		copy[key] = value
 	}

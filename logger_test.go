@@ -30,6 +30,19 @@ func TestLogDataWithContext(t *testing.T) {
 	}
 }
 
+func TestContextDelete(t *testing.T) {
+	logger, buf := loggerWithBuffer()
+	logger.AddContext("a", "1")
+	logger.AddContext("b", "1")
+	logger.DeleteContext("b")
+
+	logger.Log(nil)
+
+	if result := buf.String(); result != "a=1" {
+		t.Errorf("Bad log output: %s", result)
+	}
+}
+
 func TestLogEmptyData(t *testing.T) {
 	logger, buf := loggerWithBuffer()
 	logger.Log(nil)

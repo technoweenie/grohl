@@ -7,18 +7,22 @@ import (
 	"strings"
 )
 
-type Logger struct {
+type IoLogger struct {
 	stream  io.Writer
 	context map[string]interface{}
 }
 
 type LogData map[string]interface{}
 
-func NewLogger(stream io.Writer) *Logger {
+type Logger interface {
+	Log(data map[string]interface{})
+}
+
+func NewLogger(stream io.Writer) *IoLogger {
 	return NewLoggerWithContext(stream, nil)
 }
 
-func NewLoggerWithContext(stream io.Writer, context map[string]interface{}) *Logger {
+func NewLoggerWithContext(stream io.Writer, context map[string]interface{}) *IoLogger {
 	if stream == nil {
 		stream = os.Stdout
 	}
@@ -27,26 +31,27 @@ func NewLoggerWithContext(stream io.Writer, context map[string]interface{}) *Log
 		context = make(map[string]interface{})
 	}
 
-	return &Logger{stream, context}
+	return &IoLogger{stream, context}
 }
 
-func (l *Logger) Log(data map[string]interface{}) {
-	l.stream.Write([]byte(l.buildLine(data)))
+func (l *IoLogger) Log(data map[string]interface{}) {
+	fullLine := fmt.Sprintf("%s\n", l.buildLine(data))
+	l.stream.Write([]byte(fullLine))
 }
 
-func (l *Logger) NewContext(data map[string]interface{}) *Logger {
+func (l *IoLogger) NewContext(data map[string]interface{}) *IoLogger {
 	return NewLoggerWithContext(l.stream, dupeMaps(l.context, data))
 }
 
-func (l *Logger) AddContext(key string, value interface{}) {
+func (l *IoLogger) AddContext(key string, value interface{}) {
 	l.context[key] = value
 }
 
-func (l *Logger) DeleteContext(key string) {
+func (l *IoLogger) DeleteContext(key string) {
 	delete(l.context, key)
 }
 
-func (l *Logger) buildLine(data map[string]interface{}) string {
+func (l *IoLogger) buildLine(data map[string]interface{}) string {
 	merged := dupeMaps(l.context, data)
 	pieces := make([]string, len(merged))
 
@@ -69,7 +74,4 @@ func dupeMaps(maps ...map[string]interface{}) map[string]interface{} {
 	return merged
 }
 
-const (
-	space = " "
-	empty = ""
-)
+const space = " "

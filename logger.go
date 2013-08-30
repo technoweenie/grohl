@@ -44,7 +44,7 @@ func (l *Logger) buildLine(data map[string]interface{}) string {
 	pieces := make([]string, len(merged))
 
 	index := 0
-	for key, value := range data {
+	for key, value := range merged {
 		pieces[index] = fmt.Sprintf("%s=%s", key, value)
 		index = index + 1
 	}

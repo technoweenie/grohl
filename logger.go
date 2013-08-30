@@ -15,13 +15,18 @@ type Logger struct {
 type LogData map[string]interface{}
 
 func NewLogger(stream io.Writer) *Logger {
-	return NewLoggerWithContext(stream, make(map[string]interface{}))
+	return NewLoggerWithContext(stream, nil)
 }
 
 func NewLoggerWithContext(stream io.Writer, context map[string]interface{}) *Logger {
 	if stream == nil {
 		stream = os.Stdout
 	}
+
+	if context == nil {
+		context = make(map[string]interface{})
+	}
+
 	return &Logger{stream, context}
 }
 

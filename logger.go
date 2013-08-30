@@ -28,10 +28,7 @@ func (l *Logger) Log(data map[string]interface{}) {
 }
 
 func (l *Logger) NewContext(data map[string]interface{}) *Logger {
-	ctx := make(map[string]interface{})
-	mergeMaps(l.context, ctx)
-	mergeMaps(data, ctx)
-	return NewLoggerWithContext(l.Stream, ctx)
+	return NewLoggerWithContext(l.Stream, dupeMaps(l.context, data))
 }
 
 func (l *Logger) AddContext(key string, value interface{}) {
@@ -43,10 +40,7 @@ func (l *Logger) DeleteContext(key string) {
 }
 
 func (l *Logger) buildLine(data map[string]interface{}) string {
-	merged := make(map[string]interface{})
-	mergeMaps(l.context, merged)
-	mergeMaps(data, merged)
-
+	merged := dupeMaps(l.context, data)
 	pieces := make([]string, len(merged))
 	l.convertDataMap(merged, pieces)
 	return strings.Join(pieces, space)
@@ -60,14 +54,14 @@ func (l *Logger) convertDataMap(data map[string]interface{}, pieces []string) {
 	}
 }
 
-func mergeMaps(original map[string]interface{}, copy map[string]interface{}) {
-	if original == nil {
-		return
+func dupeMaps(maps ...map[string]interface{}) map[string]interface{} {
+	merged := make(map[string]interface{})
+	for _, orig := range maps {
+		for key, value := range orig {
+			merged[key] = value
+		}
 	}
-
-	for key, value := range original {
-		copy[key] = value
-	}
+	return merged
 }
 
 const (

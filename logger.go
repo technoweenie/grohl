@@ -1,8 +1,10 @@
 package scrolls
 
 import (
+	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 type Logger struct {
@@ -21,5 +23,26 @@ func (l *Logger) Log(context map[string]string) {
 }
 
 func (l *Logger) buildLine(context map[string]string) string {
-	return "boom"
+	if context != nil {
+		return l.convertContext(context)
+	} else {
+		return empty
+	}
 }
+
+func (l *Logger) convertContext(context map[string]string) string {
+	pieces := make([]string, len(context))
+	index := 0
+
+	for key, value := range context {
+		pieces[index] = fmt.Sprintf("%s=%s", key, value)
+		index = index + 1
+	}
+
+	return strings.Join(pieces, space)
+}
+
+const (
+	space = " "
+	empty = ""
+)

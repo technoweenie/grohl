@@ -5,12 +5,27 @@ import (
 	"testing"
 )
 
-func TestLogToStream(t *testing.T) {
-	buf := new(bytes.Buffer)
-	logger := NewLogger(buf)
-	logger.Log(nil)
+func TestLogContext(t *testing.T) {
+	logger, buf := loggerWithBuffer()
+	logger.Log(map[string]string{
+		"a": "1", "b": "2",
+	})
 
-	if result := buf.String(); result != "boom" {
+	if result := buf.String(); result != "a=1 b=2" {
 		t.Errorf("Bad log output: %s", result)
 	}
+}
+
+func TestLogEmptyContext(t *testing.T) {
+	logger, buf := loggerWithBuffer()
+	logger.Log(nil)
+
+	if result := buf.String(); result != "" {
+		t.Errorf("Bad log output: %s", result)
+	}
+}
+
+func loggerWithBuffer() (*Logger, *bytes.Buffer) {
+	buf := new(bytes.Buffer)
+	return NewLogger(buf), buf
 }

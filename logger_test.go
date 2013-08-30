@@ -7,7 +7,7 @@ import (
 
 func TestLogData(t *testing.T) {
 	logger, buf := loggerWithBuffer()
-	logger.Log(map[string]interface{}{
+	logger.Log(LogData{
 		"a": "1", "b": "2",
 	})
 
@@ -20,7 +20,7 @@ func TestContextOjbect(t *testing.T) {
 	logger, buf := loggerWithBuffer()
 	logger.AddContext("a", "1")
 	logger.AddContext("b", "1")
-	context := logger.NewContext(map[string]interface{}{
+	context := logger.NewContext(LogData{
 		"b": "2", "c": "2",
 	})
 
@@ -38,7 +38,7 @@ func TestLogDataWithContext(t *testing.T) {
 	logger.AddContext("a", "1")
 	logger.AddContext("b", "1")
 
-	logger.Log(map[string]interface{}{
+	logger.Log(LogData{
 		"b": "2", "c": "3",
 	})
 

@@ -12,6 +12,8 @@ type Logger struct {
 	context map[string]interface{}
 }
 
+type LogData map[string]interface{}
+
 func NewLogger(stream io.Writer) *Logger {
 	return NewLoggerWithContext(stream, make(map[string]interface{}))
 }

@@ -8,8 +8,9 @@ import (
 )
 
 type IoLogger struct {
-	stream  io.Writer
-	context map[string]interface{}
+	TimeUnit string
+	stream   io.Writer
+	context  map[string]interface{}
 }
 
 type LogData map[string]interface{}
@@ -31,7 +32,7 @@ func NewLoggerWithContext(stream io.Writer, context map[string]interface{}) *IoL
 		context = make(map[string]interface{})
 	}
 
-	return &IoLogger{stream, context}
+	return &IoLogger{defaultTimeUnit, stream, context}
 }
 
 func (l *IoLogger) Log(data map[string]interface{}) {
@@ -40,7 +41,9 @@ func (l *IoLogger) Log(data map[string]interface{}) {
 }
 
 func (l *IoLogger) NewContext(data map[string]interface{}) *IoLogger {
-	return NewLoggerWithContext(l.stream, dupeMaps(l.context, data))
+	ctx := NewLoggerWithContext(l.stream, dupeMaps(l.context, data))
+	ctx.TimeUnit = l.TimeUnit
+	return ctx
 }
 
 func (l *IoLogger) AddContext(key string, value interface{}) {
@@ -74,4 +77,7 @@ func dupeMaps(maps ...map[string]interface{}) map[string]interface{} {
 	return merged
 }
 
-const space = " "
+const (
+	space = " "
+	defaultTimeUnit = "s"
+)

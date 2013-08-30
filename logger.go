@@ -42,16 +42,14 @@ func (l *Logger) DeleteContext(key string) {
 func (l *Logger) buildLine(data map[string]interface{}) string {
 	merged := dupeMaps(l.context, data)
 	pieces := make([]string, len(merged))
-	l.convertDataMap(merged, pieces)
-	return strings.Join(pieces, space)
-}
 
-func (l *Logger) convertDataMap(data map[string]interface{}, pieces []string) {
 	index := 0
 	for key, value := range data {
 		pieces[index] = fmt.Sprintf("%s=%s", key, value)
 		index = index + 1
 	}
+
+	return strings.Join(pieces, space)
 }
 
 func dupeMaps(maps ...map[string]interface{}) map[string]interface{} {

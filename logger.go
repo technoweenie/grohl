@@ -78,6 +78,6 @@ func dupeMaps(maps ...map[string]interface{}) map[string]interface{} {
 }
 
 const (
-	space = " "
+	space           = " "
 	defaultTimeUnit = "s"
 )

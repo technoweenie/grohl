@@ -16,7 +16,7 @@ func TestLogData(t *testing.T) {
 	}
 }
 
-func TestContextOjbect(t *testing.T) {
+func TestContextObject(t *testing.T) {
 	logger, buf := loggerWithBuffer()
 	logger.AddContext("a", "1")
 	logger.AddContext("b", "1")
@@ -24,7 +24,7 @@ func TestContextOjbect(t *testing.T) {
 		"b": "2", "c": "2",
 	})
 
-	context.Log(map[string]interface{}{
+	context.Log(LogData{
 		"c": "3", "d": "4",
 	})
 

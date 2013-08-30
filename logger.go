@@ -8,7 +8,7 @@ import (
 )
 
 type Logger struct {
-	Stream  io.Writer
+	stream  io.Writer
 	context map[string]interface{}
 }
 
@@ -24,11 +24,11 @@ func NewLoggerWithContext(stream io.Writer, context map[string]interface{}) *Log
 }
 
 func (l *Logger) Log(data map[string]interface{}) {
-	l.Stream.Write([]byte(l.buildLine(data)))
+	l.stream.Write([]byte(l.buildLine(data)))
 }
 
 func (l *Logger) NewContext(data map[string]interface{}) *Logger {
-	return NewLoggerWithContext(l.Stream, dupeMaps(l.context, data))
+	return NewLoggerWithContext(l.stream, dupeMaps(l.context, data))
 }
 
 func (l *Logger) AddContext(key string, value interface{}) {

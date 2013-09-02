@@ -108,21 +108,21 @@ logger := grohl.NewLogger(buf)
 logger.Log(grohl.LogData{"fn": "trap"})
 ```
 
-NOTE: Grohl does not handle non-strings yet :(
-
 Grohl has a rich #parse method to handle a number of cases. Here is
 a look at some of the ways Grohl handles certain values.
 
 Time and nil:
 
-```ruby
-    Scrolls.log(t: Time.at(1340118167), this: nil)
-    t=2012-06-19T11:02:47-0400 this=nil
+```go
+grohl.Log("t": time.Date(2012, 6, 19, 11, 2, 47, 0, time.UTC), "this": nil)
+
+t=2012-06-19T11:02:47-0400 this=nil
 ```
 
 True/False:
 
-```ruby
-    Scrolls.log(that: false, this: true)
-    that=false this=true
+```go
+grohl.Log("that": false, "this": true)
+
+that=false this=true
 ```

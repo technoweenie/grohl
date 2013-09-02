@@ -5,15 +5,13 @@ import (
   "strconv"
   "runtime"
   "fmt"
-  "bytes"
 )
 
 // quick test for concurrent log messages
 func main() {
   fmt.Printf("%d -> %d\n", runtime.NumCPU, runtime.GOMAXPROCS(1000))
 
-  buf := bytes.NewBuffer([]byte(""))
-  logger := scrolls.NewLogger(buf)
+  logger := scrolls.NewLogger(nil)
   chans := make([]chan bool, 1000)
 
   for i := range chans {
@@ -24,7 +22,6 @@ func main() {
   for _, ch := range chans {
     <- ch
   }
-  fmt.Println(buf.String())
 }
 
 func LogLikeCrazy(key string, logger scrolls.Logger, stopped chan bool) {

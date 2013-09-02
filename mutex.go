@@ -5,6 +5,7 @@ import (
 	"sync"
 )
 
+// A very simple writer that locks a mutex around every Write().
 type MutexWriter struct {
 	Writer io.Writer
 	mu     sync.Mutex

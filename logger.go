@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 )
 
+// A really basic logger that builds lines and writes to any io.Writer.  This
+// expects the writers to be threadsafe.  If they're not, wrap them with
+// SyncWriter() to protect Write() calls with a mutex.
 type IoLogger struct {
 	TimeUnit string
 	stream   io.Writer
@@ -36,7 +38,7 @@ func NewLoggerWithContext(stream io.Writer, context map[string]interface{}) *IoL
 }
 
 func (l *IoLogger) Log(data map[string]interface{}) {
-	fullLine := fmt.Sprintf("%s\n", l.buildLine(data))
+	fullLine := fmt.Sprintf("%s\n", buildLine(l.context, data))
 	l.stream.Write([]byte(fullLine))
 }
 
@@ -54,30 +56,4 @@ func (l *IoLogger) DeleteContext(key string) {
 	delete(l.context, key)
 }
 
-func (l *IoLogger) buildLine(data map[string]interface{}) string {
-	merged := dupeMaps(l.context, data)
-	pieces := make([]string, len(merged))
-
-	index := 0
-	for key, value := range merged {
-		pieces[index] = fmt.Sprintf("%s=%s", key, value)
-		index = index + 1
-	}
-
-	return strings.Join(pieces, space)
-}
-
-func dupeMaps(maps ...map[string]interface{}) map[string]interface{} {
-	merged := make(map[string]interface{})
-	for _, orig := range maps {
-		for key, value := range orig {
-			merged[key] = value
-		}
-	}
-	return merged
-}
-
-const (
-	space           = " "
-	defaultTimeUnit = "s"
-)
+const defaultTimeUnit = "s"

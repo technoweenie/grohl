@@ -2,7 +2,10 @@ package grohl
 
 import (
 	"testing"
+	"time"
 )
+
+var exampleTime = time.Date(2000, 1, 2, 3, 4, 5, 6, time.UTC)
 
 var examples = map[string]LogData{
 	"fn=string test=1": LogData{
@@ -46,6 +49,9 @@ var examples = map[string]LogData{
 	},
 	"fn=nil test=nil": LogData{
 		"fn": "nil", "test": nil,
+	},
+	"fn=time test=2000-01-02T03:04:05+0000": LogData{
+		"fn": "time", "test": exampleTime,
 	},
 }
 

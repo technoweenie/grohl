@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Builds a log message as a single line from log data.
@@ -24,8 +25,12 @@ func formatValue(value interface{}) string {
 		return "nil"
 	}
 
-	k := reflect.TypeOf(value).Kind()
-	formatter := formatters[k]
+	t := reflect.TypeOf(value)
+	formatter := formatters[t.Kind().String()]
+	if formatter == nil {
+		formatter = formatters[t.String()]
+	}
+
 	if formatter == nil {
 		return "unknown"
 	}
@@ -47,64 +52,71 @@ func dupeMaps(maps ...map[string]interface{}) map[string]interface{} {
 	return merged
 }
 
-const space = " "
+const (
+	space      = " "
+	timeLayout = "2006-01-02T15:04:05-0700"
+)
 
 var durationFormat = []byte("f")[0]
 
-var formatters = map[reflect.Kind]func(value interface{}) string{
-	reflect.String: func(value interface{}) string {
+var formatters = map[string]func(value interface{}) string{
+	"string": func(value interface{}) string {
 		return value.(string)
 	},
 
-	reflect.Bool: func(value interface{}) string {
+	"bool": func(value interface{}) string {
 		return strconv.FormatBool(value.(bool))
 	},
 
-	reflect.Int: func(value interface{}) string {
+	"int": func(value interface{}) string {
 		return strconv.FormatInt(int64(value.(int)), 10)
 	},
 
-	reflect.Int8: func(value interface{}) string {
+	"int8": func(value interface{}) string {
 		return strconv.FormatInt(int64(value.(int8)), 10)
 	},
 
-	reflect.Int16: func(value interface{}) string {
+	"int16": func(value interface{}) string {
 		return strconv.FormatInt(int64(value.(int16)), 10)
 	},
 
-	reflect.Int32: func(value interface{}) string {
+	"int32": func(value interface{}) string {
 		return strconv.FormatInt(int64(value.(int32)), 10)
 	},
 
-	reflect.Int64: func(value interface{}) string {
+	"int64": func(value interface{}) string {
 		return strconv.FormatInt(value.(int64), 10)
 	},
 
-	reflect.Float32: func(value interface{}) string {
+	"float32": func(value interface{}) string {
 		return strconv.FormatFloat(float64(value.(float32)), durationFormat, 3, 32)
 	},
 
-	reflect.Float64: func(value interface{}) string {
+	"float64": func(value interface{}) string {
 		return strconv.FormatFloat(value.(float64), durationFormat, 3, 64)
 	},
 
-	reflect.Uint: func(value interface{}) string {
+	"uint": func(value interface{}) string {
 		return strconv.FormatUint(uint64(value.(uint)), 10)
 	},
 
-	reflect.Uint8: func(value interface{}) string {
+	"uint8": func(value interface{}) string {
 		return strconv.FormatUint(uint64(value.(uint8)), 10)
 	},
 
-	reflect.Uint16: func(value interface{}) string {
+	"uint16": func(value interface{}) string {
 		return strconv.FormatUint(uint64(value.(uint16)), 10)
 	},
 
-	reflect.Uint32: func(value interface{}) string {
+	"uint32": func(value interface{}) string {
 		return strconv.FormatUint(uint64(value.(uint32)), 10)
 	},
 
-	reflect.Uint64: func(value interface{}) string {
+	"uint64": func(value interface{}) string {
 		return strconv.FormatUint(value.(uint64), 10)
+	},
+
+	"time.Time": func(value interface{}) string {
+		return value.(time.Time).Format(timeLayout)
 	},
 }

@@ -3,32 +3,32 @@ package main
 import (
   ".."
   "strconv"
+  "runtime"
+  "fmt"
+  "bytes"
 )
 
 // quick test for concurrent log messages
 func main() {
-  logger := scrolls.NewLogger(nil)
-  aStopped := make(chan bool)
-  bStopped := make(chan bool)
-  cStopped := make(chan bool)
-  dStopped := make(chan bool)
-  eStopped := make(chan bool)
+  fmt.Printf("%d -> %d\n", runtime.NumCPU, runtime.GOMAXPROCS(1000))
 
-  go LogLikeCrazy("a", logger, aStopped)
-  go LogLikeCrazy("b", logger, bStopped)
-  go LogLikeCrazy("c", logger, cStopped)
-  go LogLikeCrazy("d", logger, dStopped)
-  go LogLikeCrazy("e", logger, eStopped)
+  buf := bytes.NewBuffer([]byte(""))
+  logger := scrolls.NewLogger(buf)
+  chans := make([]chan bool, 1000)
 
-  <- aStopped
-  <- bStopped
-  <- cStopped
-  <- dStopped
-  <- eStopped
+  for i := range chans {
+    chans[i] = make(chan bool)
+    go LogLikeCrazy(strconv.Itoa(i), logger, chans[i])
+  }
+
+  for _, ch := range chans {
+    <- ch
+  }
+  fmt.Println(buf.String())
 }
 
 func LogLikeCrazy(key string, logger scrolls.Logger, stopped chan bool) {
-  for i := 0; i < 1000; i += 1 {
+  for i := 0; i < 10; i += 1 {
     logger.Log(scrolls.LogData{"key": key, "i": strconv.Itoa(i+1)})
   }
   stopped <- true

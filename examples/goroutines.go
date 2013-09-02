@@ -22,10 +22,6 @@ func main() {
   for _, ch := range chans {
     <- ch
   }
-  timer := grohl.NewTimer(grohl.LogData{"fn": "test"})
-  grohl.Log(grohl.LogData{"status": "exec"})
-  // code here
-  timer.Log(nil)
 }
 
 func LogLikeCrazy(key string, logger grohl.Logger, stopped chan bool) {

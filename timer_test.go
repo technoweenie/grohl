@@ -1,4 +1,4 @@
-package scrolls
+package grohl
 
 import (
 	"testing"

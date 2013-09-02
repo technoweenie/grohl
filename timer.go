@@ -1,4 +1,4 @@
-package scrolls
+package grohl
 
 import (
 	"strconv"
@@ -17,6 +17,10 @@ func (l *IoLogger) NewTimer(context map[string]interface{}) *timer {
 }
 
 func (t *timer) Log(data map[string]interface{}) {
+	if data == nil {
+		data = make(map[string]interface{})
+	}
+
 	data["at"] = "finish"
 	data["elapsed"] = t.ElapsedString()
 	t.IoLogger.Log(data)

@@ -25,7 +25,7 @@ func NewLogger(stream io.Writer) *IoLogger {
 
 func NewLoggerWithContext(stream io.Writer, context map[string]interface{}) *IoLogger {
 	if stream == nil {
-		stream = os.Stdout
+		stream = SyncWriter(os.Stdout)
 	}
 
 	if context == nil {

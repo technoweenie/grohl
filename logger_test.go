@@ -2,6 +2,7 @@ package grohl
 
 import (
 	"bytes"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -14,6 +15,35 @@ func TestLogData(t *testing.T) {
 
 	if result := logged(buf); result != "a=1 b=2" {
 		t.Errorf("Bad log output: %s", result)
+	}
+}
+
+func TestLogDataWithTime(t *testing.T) {
+	logger, buf := loggerWithBuffer()
+	logger.AddTime = true
+	logger.Log(LogData{
+		"a": "1", "b": "2",
+	})
+
+	result := logged(buf)
+	pieces := strings.Split(result, " ")
+
+	if piecesLen := len(pieces); piecesLen != 3 {
+		t.Fatalf("Wrong number of log keys: %d", piecesLen)
+	}
+
+	key := pieces[0]
+	matched, err := regexp.MatchString(`^now=\d{4}\-\d{2}\-\d{2}T\d{2}:\d{2}:\d{2}\+0000$`, key)
+	if err != nil || !matched {
+		t.Errorf("Bad first key: %s", key)
+	}
+
+	if key = pieces[1]; key != "a=1" {
+		t.Errorf("Bad second key: %s", key)
+	}
+
+	if key = pieces[2]; key != "b=2" {
+		t.Errorf("Bad third key: %s", key)
 	}
 }
 

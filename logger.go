@@ -11,6 +11,7 @@ import (
 // SyncWriter() to protect Write() calls with a mutex.
 type IoLogger struct {
 	TimeUnit string
+	AddTime  bool
 	stream   io.Writer
 	context  map[string]interface{}
 }
@@ -34,17 +35,18 @@ func NewLoggerWithContext(stream io.Writer, context map[string]interface{}) *IoL
 		context = make(map[string]interface{})
 	}
 
-	return &IoLogger{defaultTimeUnit, stream, context}
+	return &IoLogger{defaultTimeUnit, true, stream, context}
 }
 
 func (l *IoLogger) Log(data map[string]interface{}) {
-	fullLine := fmt.Sprintf("%s\n", buildLine(l.context, data))
+	fullLine := fmt.Sprintf("%s\n", buildLine(l.context, data, l.AddTime))
 	l.stream.Write([]byte(fullLine))
 }
 
 func (l *IoLogger) NewContext(data map[string]interface{}) *IoLogger {
 	ctx := NewLoggerWithContext(l.stream, dupeMaps(l.context, data))
 	ctx.TimeUnit = l.TimeUnit
+	ctx.AddTime = l.AddTime
 	return ctx
 }
 

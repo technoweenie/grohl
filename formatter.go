@@ -9,12 +9,22 @@ import (
 )
 
 // Builds a log message as a single line from log data.
-func BuildLine(data map[string]interface{}) string {
+func BuildLine(data map[string]interface{}, addTime bool) string {
 	index := 0
-	pieces := make([]string, len(data))
+	extraRows := 0
+	if addTime {
+		extraRows = extraRows + 1
+		delete(data, "now")
+	}
+
+	pieces := make([]string, len(data)+extraRows)
 	for key, value := range data {
-		pieces[index] = fmt.Sprintf("%s=%s", key, formatValue(value))
+		pieces[index+extraRows] = fmt.Sprintf("%s=%s", key, formatValue(value))
 		index = index + 1
+	}
+
+	if addTime {
+		pieces[0] = fmt.Sprintf("now=%s", time.Now().UTC().Format(timeLayout))
 	}
 
 	return strings.Join(pieces, space)
@@ -42,7 +52,7 @@ func formatValue(value interface{}) string {
 }
 
 func buildLine(context map[string]interface{}, data map[string]interface{}) string {
-	return BuildLine(dupeMaps(context, data))
+	return BuildLine(dupeMaps(context, data), false)
 }
 
 func dupeMaps(maps ...map[string]interface{}) map[string]interface{} {

@@ -40,6 +40,9 @@ var examples = map[string]LogData{
 	`fn=stringbothquotesnospace test='a"`: LogData{
 		"fn": "stringbothquotesnospace", "test": `'a"`,
 	},
+	"fn=emptystring test=nil": LogData{
+		"fn": "emptystring", "test": "",
+	},
 	"fn=int test=1": LogData{
 		"fn": "int", "test": int(1),
 	},

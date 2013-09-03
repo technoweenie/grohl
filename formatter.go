@@ -58,6 +58,10 @@ func dupeMaps(maps ...map[string]interface{}) map[string]interface{} {
 func formatString(value interface{}) string {
 	str := value.(string)
 
+	if len(str) == 0 {
+		return "nil"
+	}
+
 	if idx := strings.Index(str, " "); idx != -1 {
 		hasSingle := strings.Index(str, sQuote) != -1
 		hasDouble := strings.Index(str, dQuote) != -1

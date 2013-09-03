@@ -92,7 +92,7 @@ var examples = map[string]LogData{
 
 func TestFormat(t *testing.T) {
 	for expected, data := range examples {
-		if actual := BuildLine(data); expected != actual {
+		if actual := BuildLine(data, false); expected != actual {
 			t.Errorf("Expected %s\nGot: %s", expected, actual)
 		}
 	}

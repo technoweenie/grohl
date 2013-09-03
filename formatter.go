@@ -32,6 +32,9 @@ func formatValue(value interface{}) string {
 	}
 
 	if formatter == nil {
+		if _, ok := t.MethodByName("Error"); ok == true {
+			return formatString(value.(error).Error())
+		}
 		return "unknown"
 	}
 
@@ -52,6 +55,30 @@ func dupeMaps(maps ...map[string]interface{}) map[string]interface{} {
 	return merged
 }
 
+func formatString(value interface{}) string {
+	str := value.(string)
+
+	if idx := strings.Index(str, " "); idx != -1 {
+		hasSingle := strings.Index(str, sQuote) != -1
+		hasDouble := strings.Index(str, dQuote) != -1
+		str = strings.Replace(str, back, backReplace, -1)
+
+		if hasSingle && hasDouble {
+			str = dQuote + strings.Replace(str, dQuote, dReplace, -1) + dQuote
+		} else if hasDouble {
+			str = sQuote + str + sQuote
+		} else {
+			str = dQuote + str + dQuote
+		}
+	} else {
+		if idx := strings.Index(str, "="); idx != -1 {
+			str = dQuote + str + dQuote
+		}
+	}
+
+	return str
+}
+
 const (
 	space       = " "
 	equals      = "="
@@ -66,29 +93,7 @@ const (
 var durationFormat = []byte("f")[0]
 
 var formatters = map[string]func(value interface{}) string{
-	"string": func(value interface{}) string {
-		str := value.(string)
-
-		if idx := strings.Index(str, " "); idx != -1 {
-			hasSingle := strings.Index(str, sQuote) != -1
-			hasDouble := strings.Index(str, dQuote) != -1
-			str = strings.Replace(str, back, backReplace, -1)
-
-			if hasSingle && hasDouble {
-				str = dQuote + strings.Replace(str, dQuote, dReplace, -1) + dQuote
-			} else if hasDouble {
-				str = sQuote + str + sQuote
-			} else {
-				str = dQuote + str + dQuote
-			}
-		} else {
-			if idx := strings.Index(str, "="); idx != -1 {
-				str = dQuote + str + dQuote
-			}
-		}
-
-		return str
-	},
+	"string": formatString,
 
 	"bool": func(value interface{}) string {
 		return strconv.FormatBool(value.(bool))

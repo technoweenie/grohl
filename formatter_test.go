@@ -1,11 +1,13 @@
 package grohl
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
 
 var exampleTime = time.Date(2000, 1, 2, 3, 4, 5, 6, time.UTC)
+var exampleError = fmt.Errorf("error message")
 
 var examples = map[string]LogData{
 	"fn=string test=hi": LogData{
@@ -79,6 +81,9 @@ var examples = map[string]LogData{
 	},
 	"fn=time test=2000-01-02T03:04:05+0000": LogData{
 		"fn": "time", "test": exampleTime,
+	},
+	`fn=error test="error message"`: LogData{
+		"fn": "error", "test": exampleError,
 	},
 }
 

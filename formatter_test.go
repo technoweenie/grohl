@@ -8,8 +8,35 @@ import (
 var exampleTime = time.Date(2000, 1, 2, 3, 4, 5, 6, time.UTC)
 
 var examples = map[string]LogData{
-	"fn=string test=1": LogData{
-		"fn": "string", "test": "1",
+	"fn=string test=hi": LogData{
+		"fn": "string", "test": "hi",
+	},
+	`fn=stringspace test="a b"`: LogData{
+		"fn": "stringspace", "test": "a b",
+	},
+	`fn=stringslasher test="slasher \\\\"`: LogData{
+		"fn": "stringslasher", "test": `slasher \\`,
+	},
+	`fn=stringeqspace test="x=4, y=10"`: LogData{
+		"fn": "stringeqspace", "test": "x=4, y=10",
+	},
+	`fn=stringeq test="x=4,y=10"`: LogData{
+		"fn": "stringeq", "test": "x=4,y=10",
+	},
+	`fn=stringspace test="hello world"`: LogData{
+		"fn": "stringspace", "test": "hello world",
+	},
+	`fn=stringbothquotes test="echo 'hello' \"world\""`: LogData{
+		"fn": "stringbothquotes", "test": `echo 'hello' "world"`,
+	},
+	`fn=stringsinglequotes test="a 'a'"`: LogData{
+		"fn": "stringsinglequotes", "test": `a 'a'`,
+	},
+	`fn=stringdoublequotes test='echo "hello"'`: LogData{
+		"fn": "stringdoublequotes", "test": `echo "hello"`,
+	},
+	`fn=stringbothquotesnospace test='a"`: LogData{
+		"fn": "stringbothquotesnospace", "test": `'a"`,
 	},
 	"fn=int test=1": LogData{
 		"fn": "int", "test": int(1),

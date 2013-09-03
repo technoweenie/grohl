@@ -72,7 +72,9 @@ func TestLogEmptyData(t *testing.T) {
 
 func loggerWithBuffer() (*IoLogger, *bytes.Buffer) {
 	buf := new(bytes.Buffer)
-	return NewLogger(buf), buf
+	logger := NewLogger(buf)
+	logger.AddTime = false
+	return logger, buf
 }
 
 func logged(buf *bytes.Buffer) string {

@@ -51,8 +51,8 @@ func formatValue(value interface{}) string {
 	return formatter(value)
 }
 
-func buildLine(context map[string]interface{}, data map[string]interface{}) string {
-	return BuildLine(dupeMaps(context, data), false)
+func buildLine(context map[string]interface{}, data map[string]interface{}, addTime bool) string {
+	return BuildLine(dupeMaps(context, data), addTime)
 }
 
 func dupeMaps(maps ...map[string]interface{}) map[string]interface{} {

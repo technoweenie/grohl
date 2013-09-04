@@ -22,7 +22,7 @@ func (s *Statter) Counter(sampleRate float32, bucket string, n ...int) {
 	}
 
 	for _, num := range n {
-		s.Logger.Log(LogData{"statsd": bucket, "count": num})
+		s.Logger.Log(LogData{"metric": bucket, "count": num})
 	}
 }
 
@@ -32,7 +32,7 @@ func (s *Statter) Timing(sampleRate float32, bucket string, d ...time.Duration) 
 	}
 
 	for _, dur := range d {
-		s.Logger.Log(LogData{"statsd": bucket, "timing": int64(dur / time.Millisecond)})
+		s.Logger.Log(LogData{"metric": bucket, "timing": int64(dur / time.Millisecond)})
 	}
 }
 
@@ -42,6 +42,6 @@ func (s *Statter) Gauge(sampleRate float32, bucket string, value ...string) {
 	}
 
 	for _, v := range value {
-		s.Logger.Log(LogData{"statsd": bucket, "gauge": v})
+		s.Logger.Log(LogData{"metric": bucket, "gauge": v})
 	}
 }

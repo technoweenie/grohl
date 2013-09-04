@@ -18,7 +18,7 @@ func DeleteContext(key string) {
 	logger.DeleteContext(key)
 }
 
-func NewTimer(context map[string]interface{}) *timer {
+func NewTimer(context map[string]interface{}) *Timer {
 	return logger.NewTimer(context)
 }
 

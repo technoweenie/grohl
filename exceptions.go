@@ -29,11 +29,7 @@ type ExceptionLogger struct {
 	*IoLogger
 }
 
-func NewExceptionLogger(logger *IoLogger, reporter ExceptionReporter) *ExceptionLogger {
-	if logger == nil {
-		logger = defaultLogger
-	}
-
+func newExceptionLogger(logger *IoLogger, reporter ExceptionReporter) *ExceptionLogger {
 	if reporter == nil {
 		reporter = &ExceptionLogReporter{logger}
 	}

@@ -10,6 +10,10 @@ func NewContext(data map[string]interface{}) *IoLogger {
 	return defaultLogger.NewContext(data)
 }
 
+func NewExceptionLogger(reporter ExceptionReporter) *ExceptionLogger {
+	return newExceptionLogger(defaultLogger, reporter)
+}
+
 func AddContext(key string, value interface{}) {
 	defaultLogger.AddContext(key, value)
 }

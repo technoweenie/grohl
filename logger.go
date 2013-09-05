@@ -50,6 +50,10 @@ func (l *IoLogger) NewContext(data map[string]interface{}) *IoLogger {
 	return ctx
 }
 
+func (l *IoLogger) NewExceptionLogger(reporter ExceptionReporter) *ExceptionLogger {
+	return newExceptionLogger(l, reporter)
+}
+
 func (l *IoLogger) AddContext(key string, value interface{}) {
 	l.context[key] = value
 }

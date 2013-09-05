@@ -11,7 +11,7 @@ type Statter struct {
 
 func NewStatter(l Logger) *Statter {
 	if l == nil {
-		l = logger
+		l = defaultLogger
 	}
 	return &Statter{l}
 }

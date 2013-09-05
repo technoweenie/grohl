@@ -1,35 +1,39 @@
 package grohl
 
-var logger = NewLogger(nil)
+var defaultLogger = NewLogger(nil)
 
 func Log(data map[string]interface{}) {
-	logger.Log(data)
+	defaultLogger.Log(data)
 }
 
 func NewContext(data map[string]interface{}) *IoLogger {
-	return logger.NewContext(data)
+	return defaultLogger.NewContext(data)
+}
+
+func NewExceptionLogger(reporter ExceptionReporter) *ExceptionLogger {
+	return newExceptionLogger(defaultLogger, reporter)
 }
 
 func AddContext(key string, value interface{}) {
-	logger.AddContext(key, value)
+	defaultLogger.AddContext(key, value)
 }
 
 func DeleteContext(key string) {
-	logger.DeleteContext(key)
+	defaultLogger.DeleteContext(key)
 }
 
 func NewTimer(context map[string]interface{}) *Timer {
-	return logger.NewTimer(context)
+	return defaultLogger.NewTimer(context)
 }
 
 func SetLogger(l *IoLogger) {
-	logger = l
+	defaultLogger = l
 }
 
 func SetTimeUnit(unit string) {
-	logger.TimeUnit = unit
+	defaultLogger.TimeUnit = unit
 }
 
 func TimeUnit() string {
-	return logger.TimeUnit
+	return defaultLogger.TimeUnit
 }

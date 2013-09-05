@@ -44,4 +44,5 @@ func errorToMap(err error, data map[string]interface{}) {
 	data["at"] = "exception"
 	data["class"] = reflect.TypeOf(err).String()
 	data["message"] = err.Error()
+	data["exception_id"] = int64(reflect.ValueOf(err).Pointer())
 }

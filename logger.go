@@ -54,6 +54,12 @@ func (l *IoLogger) NewStatter() *Statter {
 	return &Statter{l}
 }
 
+func (l *IoLogger) ReportException(reporter ExceptionReporter, err error, data map[string]interface{}) {
+	merged := dupeMaps(l.context, data)
+	errorToMap(err, merged)
+	reporter.Report(err, merged)
+}
+
 func (l *IoLogger) NewExceptionLogger(reporter ExceptionReporter) *ExceptionLogger {
 	return newExceptionLogger(l, reporter)
 }

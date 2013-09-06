@@ -38,9 +38,7 @@ func newExceptionLogger(logger *IoLogger, reporter ExceptionReporter) *Exception
 }
 
 func (l *ExceptionLogger) Report(err error, data map[string]interface{}) {
-	merged := dupeMaps(l.context, data)
-	errorToMap(err, merged)
-	l.Reporter.Report(err, merged)
+	l.ReportException(l.Reporter, err, data)
 }
 
 func ErrorBacktrace(err error) string {

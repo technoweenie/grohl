@@ -50,6 +50,10 @@ func (l *IoLogger) NewContext(data map[string]interface{}) *IoLogger {
 	return ctx
 }
 
+func (l *IoLogger) NewStatter() *Statter {
+	return &Statter{l}
+}
+
 func (l *IoLogger) NewExceptionLogger(reporter ExceptionReporter) *ExceptionLogger {
 	return newExceptionLogger(l, reporter)
 }

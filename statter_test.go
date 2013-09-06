@@ -35,8 +35,7 @@ func TestLogsGauge(t *testing.T) {
 
 func TestDefaultLogger(t *testing.T) {
 	logger, buf := loggerWithBuffer()
-	SetLogger(logger)
-	s := NewStatter(nil)
+	s := logger.NewStatter()
 	if s.Logger != logger {
 		t.Errorf("Wrong logger: ", s.Logger)
 	}
@@ -50,5 +49,5 @@ func TestDefaultLogger(t *testing.T) {
 
 func statterWithBuffer() (*Statter, *bytes.Buffer) {
 	logger, buf := loggerWithBuffer()
-	return NewStatter(logger), buf
+	return logger.NewStatter(), buf
 }

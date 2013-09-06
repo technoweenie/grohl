@@ -9,11 +9,8 @@ type Statter struct {
 	Logger Logger
 }
 
-func NewStatter(l Logger) *Statter {
-	if l == nil {
-		l = defaultLogger
-	}
-	return &Statter{l}
+func NewStatter() *Statter {
+	return &Statter{DefaultLogger}
 }
 
 func (s *Statter) Counter(sampleRate float32, bucket string, n ...int) {

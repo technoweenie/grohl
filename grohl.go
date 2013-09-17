@@ -14,6 +14,10 @@ func NewExceptionLogger(reporter ExceptionReporter) *ExceptionLogger {
 	return newExceptionLogger(DefaultLogger, reporter)
 }
 
+func ReportException(reporter ExceptionReporter, err error, data map[string]interface{}) {
+	DefaultLogger.ReportException(reporter, err, data)
+}
+
 func AddContext(key string, value interface{}) {
 	DefaultLogger.AddContext(key, value)
 }

@@ -13,14 +13,14 @@ type ExceptionReporter interface {
 
 // Implementation of ExceptionReporter that writes to a grohl logger.
 type ExceptionLogReporter struct {
-	logger Logger
+	Logger Logger
 }
 
 func (r *ExceptionLogReporter) Report(err error, data map[string]interface{}) {
-	r.logger.Log(data)
+	r.Logger.Log(data)
 	for _, line := range ErrorBacktraceLines(err) {
 		data["site"] = line
-		r.logger.Log(data)
+		r.Logger.Log(data)
 	}
 }
 

@@ -1,2 +1,2 @@
 script/fmt
-go test -v .
+go test -race -v .

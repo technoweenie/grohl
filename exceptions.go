@@ -5,40 +5,18 @@ import (
 	"reflect"
 	"runtime/debug"
 	"strconv"
+	"time"
 )
 
 type ExceptionReporter interface {
-	Report(err error, data map[string]interface{})
+	Report(err error, data Data)
 }
 
-// Implementation of ExceptionReporter that writes to a grohl logger.
-type ExceptionLogReporter struct {
-	Logger Logger
-}
-
-func (r *ExceptionLogReporter) Report(err error, data map[string]interface{}) {
-	r.Logger.Log(data)
-	for _, line := range ErrorBacktraceLines(err) {
-		data["site"] = line
-		r.Logger.Log(data)
-	}
-}
-
-type ExceptionLogger struct {
-	Reporter ExceptionReporter
-	*IoLogger
-}
-
-func newExceptionLogger(logger *IoLogger, reporter ExceptionReporter) *ExceptionLogger {
-	if reporter == nil {
-		reporter = &ExceptionLogReporter{logger}
-	}
-
-	return &ExceptionLogger{reporter, logger}
-}
-
-func (l *ExceptionLogger) Report(err error, data map[string]interface{}) {
-	l.ReportException(l.Reporter, err, data)
+// A timer tracks the duration spent since its creation.
+func (c *Context) Timer(data Data) *Timer {
+	context := c.New(data)
+	context.Log(Data{"at": "start"})
+	return &Timer{time.Now(), context.TimeUnit, context}
 }
 
 func ErrorBacktrace(err error) string {
@@ -66,7 +44,7 @@ func ErrorId(err error) string {
 	return strconv.Itoa(id)
 }
 
-func errorToMap(err error, data map[string]interface{}) {
+func errorToMap(err error, data Data) {
 	data["at"] = "exception"
 	data["class"] = reflect.TypeOf(err).String()
 	data["message"] = err.Error()

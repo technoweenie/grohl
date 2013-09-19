@@ -1,20 +1,19 @@
 package grohl
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
 	"testing"
 )
 
 func TestLogsException(t *testing.T) {
-	logger, buf := exceptionLoggerWithBuffer()
-	logger.AddContext("a", 1)
-	logger.AddContext("b", 1)
+	reporter, buf := setupLogger()
+	reporter.Add("a", 1)
+	reporter.Add("b", 1)
 
 	err := fmt.Errorf("Test")
 
-	logger.Report(err, LogData{"b": 2, "c": 3, "at": "overwrite me"})
+	reporter.Report(err, Data{"b": 2, "c": 3, "at": "overwrite me"})
 	expected := fmt.Sprintf("a=1 b=2 c=3 at=exception class=*errors.errorString message=Test exception_id=%s", ErrorId(err))
 	linePrefix := expected + " site="
 
@@ -29,9 +28,4 @@ func TestLogsException(t *testing.T) {
 			}
 		}
 	}
-}
-
-func exceptionLoggerWithBuffer() (*ExceptionLogger, *bytes.Buffer) {
-	logger, buf := loggerWithBuffer()
-	return logger.NewExceptionLogger(nil), buf
 }

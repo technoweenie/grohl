@@ -8,37 +8,25 @@ import (
 )
 
 type ExceptionReporter interface {
-	Report(err error, data map[string]interface{})
+	Report(err error, data Data)
 }
 
 // Implementation of ExceptionReporter that writes to a grohl logger.
-type ExceptionLogReporter struct {
-	Logger Logger
+func (c *Context) Report(err error, data Data) {
+	if c.ExceptionReporter != nil {
+		c.ExceptionReporter.Report(err, data)
+	} else {
+		c.report(err, data)
+	}
 }
 
-func (r *ExceptionLogReporter) Report(err error, data map[string]interface{}) {
-	r.Logger.Log(data)
+func (c *Context) report(err error, data Data) {
+	errorToMap(err, data)
+	c.Log(data)
 	for _, line := range ErrorBacktraceLines(err) {
 		data["site"] = line
-		r.Logger.Log(data)
+		c.Log(data)
 	}
-}
-
-type ExceptionLogger struct {
-	Reporter ExceptionReporter
-	*IoLogger
-}
-
-func newExceptionLogger(logger *IoLogger, reporter ExceptionReporter) *ExceptionLogger {
-	if reporter == nil {
-		reporter = &ExceptionLogReporter{logger}
-	}
-
-	return &ExceptionLogger{reporter, logger}
-}
-
-func (l *ExceptionLogger) Report(err error, data map[string]interface{}) {
-	l.ReportException(l.Reporter, err, data)
 }
 
 func ErrorBacktrace(err error) string {
@@ -66,7 +54,7 @@ func ErrorId(err error) string {
 	return strconv.Itoa(id)
 }
 
-func errorToMap(err error, data map[string]interface{}) {
+func errorToMap(err error, data Data) {
 	data["at"] = "exception"
 	data["class"] = reflect.TypeOf(err).String()
 	data["message"] = err.Error()

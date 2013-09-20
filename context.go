@@ -11,6 +11,10 @@ func (c *Context) Log(data Data) {
 	c.Logger.Log(c.Merge(data))
 }
 
+func (c *Context) log(data Data) {
+	c.Logger.Log(data)
+}
+
 func (c *Context) New(data Data) *Context {
 	return &Context{c.Merge(data), c.Logger, c.TimeUnit, c.ExceptionReporter}
 }

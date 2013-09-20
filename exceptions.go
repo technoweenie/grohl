@@ -21,7 +21,9 @@ func (c *Context) Report(err error, data Data) {
 	} else {
 		c.log(merged)
 		for _, line := range ErrorBacktraceLines(err) {
-			c.log(dupeMaps(merged, Data{"site": line}))
+			lineData := dupeMaps(merged)
+			lineData["site"] = line
+			c.log(lineData)
 		}
 	}
 }

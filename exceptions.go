@@ -19,10 +19,9 @@ func (c *Context) Report(err error, data Data) {
 	if c.ExceptionReporter != nil {
 		c.ExceptionReporter.Report(err, merged)
 	} else {
-		c.log(data)
+		c.log(merged)
 		for _, line := range ErrorBacktraceLines(err) {
-			data["site"] = line
-			c.log(data)
+			c.log(dupeMaps(merged, Data{"site": line}))
 		}
 	}
 }

@@ -10,6 +10,13 @@ type Timer struct {
 	context  *Context
 }
 
+// A timer tracks the duration spent since its creation.
+func (c *Context) Timer(data Data) *Timer {
+	context := c.New(data)
+	context.Log(Data{"at": "start"})
+	return &Timer{time.Now(), context.TimeUnit, context}
+}
+
 // Writes a final log message with the elapsed time shown.
 func (t *Timer) Finish() {
 	t.Log(nil)

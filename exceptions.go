@@ -5,18 +5,20 @@ import (
 	"reflect"
 	"runtime/debug"
 	"strconv"
-	"time"
 )
 
 type ExceptionReporter interface {
 	Report(err error, data Data)
 }
 
-// A timer tracks the duration spent since its creation.
-func (c *Context) Timer(data Data) *Timer {
-	context := c.New(data)
-	context.Log(Data{"at": "start"})
-	return &Timer{time.Now(), context.TimeUnit, context}
+// Implementation of ExceptionReporter that writes to a grohl logger.
+func (c *Context) Report(err error, data Data) {
+	errorToMap(err, data)
+	c.Log(data)
+	for _, line := range ErrorBacktraceLines(err) {
+		data["site"] = line
+		c.Log(data)
+	}
 }
 
 func ErrorBacktrace(err error) string {

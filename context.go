@@ -30,16 +30,6 @@ func (c *Context) Delete(key string) {
 	delete(c.data, key)
 }
 
-// Implementation of ExceptionReporter that writes to a grohl logger.
-func (c *Context) Report(err error, data Data) {
-	errorToMap(err, data)
-	c.Log(data)
-	for _, line := range ErrorBacktraceLines(err) {
-		data["site"] = line
-		c.Log(data)
-	}
-}
-
 func dupeMaps(maps ...Data) Data {
 	merged := make(Data)
 	for _, orig := range maps {

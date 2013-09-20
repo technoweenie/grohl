@@ -13,19 +13,17 @@ type ExceptionReporter interface {
 
 // Implementation of ExceptionReporter that writes to a grohl logger.
 func (c *Context) Report(err error, data Data) {
-	if c.ExceptionReporter != nil {
-		c.ExceptionReporter.Report(err, c.Merge(data))
-	} else {
-		c.report(err, data)
-	}
-}
+	merged := c.Merge(data)
+	errorToMap(err, merged)
 
-func (c *Context) report(err error, data Data) {
-	errorToMap(err, data)
-	c.Log(data)
-	for _, line := range ErrorBacktraceLines(err) {
-		data["site"] = line
-		c.Log(data)
+	if c.ExceptionReporter != nil {
+		c.ExceptionReporter.Report(err, merged)
+	} else {
+		c.log(data)
+		for _, line := range ErrorBacktraceLines(err) {
+			data["site"] = line
+			c.log(data)
+		}
 	}
 }
 

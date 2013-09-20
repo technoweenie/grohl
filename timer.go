@@ -5,15 +5,16 @@ import (
 )
 
 type Timer struct {
-	Started time.Time
-	*IoLogger
+	Started  time.Time
+	TimeUnit string
+	context  *Context
 }
 
-// A timer is a special logger that tracks the duration spent since its creation.
-func (l *IoLogger) NewTimer(context map[string]interface{}) *Timer {
-	ctx := l.NewContext(context)
-	ctx.Log(LogData{"at": "start"})
-	return &Timer{time.Now(), ctx}
+// A timer tracks the duration spent since its creation.
+func (c *Context) Timer(data Data) *Timer {
+	context := c.New(data)
+	context.Log(Data{"at": "start"})
+	return &Timer{time.Now(), context.TimeUnit, context}
 }
 
 // Writes a final log message with the elapsed time shown.
@@ -23,14 +24,14 @@ func (t *Timer) Finish() {
 
 // Writes a log message with extra data or the elapsed time shown.  Pass nil or
 // use Finish() if there is no extra data.
-func (t *Timer) Log(data map[string]interface{}) {
+func (t *Timer) Log(data Data) {
 	if data == nil {
-		data = make(map[string]interface{})
+		data = make(Data)
 	}
 
 	data["at"] = "finish"
 	data["elapsed"] = t.durationUnit(t.Elapsed())
-	t.IoLogger.Log(data)
+	t.context.Log(data)
 }
 
 func (t *Timer) Elapsed() time.Duration {

@@ -1,39 +1,87 @@
 package grohl
 
-var DefaultLogger = NewLogger(nil)
+import (
+	"io"
+	"os"
+	"time"
+)
 
-func Log(data map[string]interface{}) {
-	DefaultLogger.Log(data)
+type Data map[string]interface{}
+
+type Logger interface {
+	Log(Data)
 }
 
-func NewContext(data map[string]interface{}) *IoLogger {
-	return DefaultLogger.NewContext(data)
+var CurrentLogger Logger = NewIoLogger(nil)
+var CurrentContext = &Context{make(Data), CurrentLogger, "s", nil}
+var CurrentStatter Statter = CurrentContext
+
+func Log(data Data) {
+	CurrentContext.Log(data)
 }
 
-func NewExceptionLogger(reporter ExceptionReporter) *ExceptionLogger {
-	return newExceptionLogger(DefaultLogger, reporter)
+func Report(err error, data Data) {
+	CurrentContext.Report(err, data)
 }
 
-func ReportException(reporter ExceptionReporter, err error, data map[string]interface{}) {
-	DefaultLogger.ReportException(reporter, err, data)
+func Counter(sampleRate float32, bucket string, n ...int) {
+	CurrentStatter.Counter(sampleRate, bucket, n...)
+}
+
+func Timing(sampleRate float32, bucket string, d ...time.Duration) {
+	CurrentStatter.Timing(sampleRate, bucket, d...)
+}
+
+func Gauge(sampleRate float32, bucket string, value ...string) {
+	CurrentStatter.Gauge(sampleRate, bucket, value...)
+}
+
+func SetLogger(logger Logger) Logger {
+	if logger == nil {
+		logger = NewIoLogger(nil)
+	}
+
+	CurrentLogger = logger
+	CurrentContext.Logger = logger
+
+	return logger
+}
+
+func NewChannelLogger(channel chan Data) (*ChannelLogger, chan Data) {
+	if channel == nil {
+		channel = make(chan Data)
+	}
+	return &ChannelLogger{channel}, channel
+}
+
+func NewIoLogger(stream io.Writer) *IoLogger {
+	if stream == nil {
+		stream = os.Stdout
+	}
+
+	return &IoLogger{stream, true}
+}
+
+func NewContext(data Data) *Context {
+	return CurrentContext.New(data)
 }
 
 func AddContext(key string, value interface{}) {
-	DefaultLogger.AddContext(key, value)
+	CurrentContext.Add(key, value)
 }
 
 func DeleteContext(key string) {
-	DefaultLogger.DeleteContext(key)
+	CurrentContext.Delete(key)
 }
 
-func NewTimer(context map[string]interface{}) *Timer {
-	return DefaultLogger.NewTimer(context)
+func NewTimer(data Data) *Timer {
+	return CurrentContext.Timer(data)
 }
 
 func SetTimeUnit(unit string) {
-	DefaultLogger.TimeUnit = unit
+	CurrentContext.TimeUnit = unit
 }
 
 func TimeUnit() string {
-	return DefaultLogger.TimeUnit
+	return CurrentContext.TimeUnit
 }

@@ -9,7 +9,7 @@ import (
 type Data map[string]interface{}
 
 type Logger interface {
-	Log(Data)
+	Log(Data) error
 }
 
 var CurrentLogger Logger = NewIoLogger(nil)

@@ -8,23 +8,32 @@ import (
 )
 
 type ExceptionReporter interface {
-	Report(err error, data Data)
+	Report(err error, data Data) error
 }
 
 // Implementation of ExceptionReporter that writes to a grohl logger.
-func (c *Context) Report(err error, data Data) {
+func (c *Context) Report(err error, data Data) error {
 	merged := c.Merge(data)
 	errorToMap(err, merged)
 
 	if c.ExceptionReporter != nil {
-		c.ExceptionReporter.Report(err, merged)
+		return c.ExceptionReporter.Report(err, merged)
 	} else {
-		c.log(merged)
+		var logErr error
+		logErr = c.log(merged)
+		if logErr != nil {
+			return logErr
+		}
+
 		for _, line := range ErrorBacktraceLines(err) {
 			lineData := dupeMaps(merged)
 			lineData["site"] = line
-			c.log(lineData)
+			logErr = c.log(lineData)
+			if logErr != nil {
+				return logErr
+			}
 		}
+		return nil
 	}
 }
 

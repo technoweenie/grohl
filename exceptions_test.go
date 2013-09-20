@@ -58,6 +58,7 @@ type channelExceptionReporter struct {
 	Channel chan *exception
 }
 
-func (c *channelExceptionReporter) Report(err error, data Data) {
+func (c *channelExceptionReporter) Report(err error, data Data) error {
 	c.Channel <- &exception{err, data}
+	return nil
 }

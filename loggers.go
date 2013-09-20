@@ -12,15 +12,17 @@ type IoLogger struct {
 	AddTime bool
 }
 
-func (l *IoLogger) Log(data Data) {
+func (l *IoLogger) Log(data Data) error {
 	fullLine := fmt.Sprintf("%s\n", BuildLog(data, l.AddTime))
-	l.stream.Write([]byte(fullLine))
+	_, err := l.stream.Write([]byte(fullLine))
+	return err
 }
 
 type ChannelLogger struct {
 	channel chan Data
 }
 
-func (l *ChannelLogger) Log(data Data) {
+func (l *ChannelLogger) Log(data Data) error {
 	l.channel <- data
+	return nil
 }

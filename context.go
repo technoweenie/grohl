@@ -7,12 +7,12 @@ type Context struct {
 	ExceptionReporter ExceptionReporter
 }
 
-func (c *Context) Log(data Data) {
-	c.Logger.Log(c.Merge(data))
+func (c *Context) Log(data Data) error {
+	return c.Logger.Log(c.Merge(data))
 }
 
-func (c *Context) log(data Data) {
-	c.Logger.Log(data)
+func (c *Context) log(data Data) error {
+	return c.Logger.Log(data)
 }
 
 func (c *Context) New(data Data) *Context {

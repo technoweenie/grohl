@@ -10,6 +10,10 @@ import (
 var exampleTime = time.Date(2000, 1, 2, 3, 4, 5, 6, time.UTC)
 var exampleError = fmt.Errorf("error message")
 
+type ExampleStruct struct {
+	Value interface{}
+}
+
 var examples = map[string]Data{
 	"fn=string test=hi": Data{
 		"fn": "string", "test": "hi",
@@ -88,6 +92,12 @@ var examples = map[string]Data{
 	},
 	`fn=error test="error message"`: Data{
 		"fn": "error", "test": exampleError,
+	},
+	`fn=slice test="[86 87 88]"`: Data{
+		"fn": "slice", "test": []byte{86, 87, 88},
+	},
+	`fn=struct test={Value:testing123}`: Data{
+		"fn": "struct", "test": ExampleStruct{Value: "testing123"},
 	},
 }
 

@@ -13,8 +13,7 @@ type Logger interface {
 }
 
 var CurrentLogger Logger = NewIoLogger(nil)
-var CurrentContext = &Context{make(Data), CurrentLogger, "s"}
-var CurrentReporter ExceptionReporter = CurrentContext
+var CurrentContext = &Context{make(Data), CurrentLogger, "s", nil}
 var CurrentStatter Statter = CurrentContext
 
 func Log(data Data) {
@@ -22,7 +21,7 @@ func Log(data Data) {
 }
 
 func Report(err error, data Data) {
-	CurrentReporter.Report(err, data)
+	CurrentContext.Report(err, data)
 }
 
 func Counter(sampleRate float32, bucket string, n ...int) {

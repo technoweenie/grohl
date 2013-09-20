@@ -14,7 +14,7 @@ type ExceptionReporter interface {
 // Implementation of ExceptionReporter that writes to a grohl logger.
 func (c *Context) Report(err error, data Data) {
 	if c.ExceptionReporter != nil {
-		c.ExceptionReporter.Report(err, data)
+		c.ExceptionReporter.Report(err, c.Merge(data))
 	} else {
 		c.report(err, data)
 	}

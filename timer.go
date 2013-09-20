@@ -24,14 +24,14 @@ func (t *Timer) Finish() {
 
 // Writes a log message with extra data or the elapsed time shown.  Pass nil or
 // use Finish() if there is no extra data.
-func (t *Timer) Log(data Data) {
+func (t *Timer) Log(data Data) error {
 	if data == nil {
 		data = make(Data)
 	}
 
 	data["at"] = "finish"
 	data["elapsed"] = t.durationUnit(t.Elapsed())
-	t.context.Log(data)
+	return t.context.Log(data)
 }
 
 func (t *Timer) Elapsed() time.Duration {

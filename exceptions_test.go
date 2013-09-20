@@ -29,3 +29,35 @@ func TestLogsException(t *testing.T) {
 		}
 	}
 }
+
+func TestCustomReporterMergesDataWithContext(t *testing.T) {
+	context := NewContext(nil)
+
+	exceptions := make(chan *exception, 1)
+	context.ExceptionReporter = &channelExceptionReporter{exceptions}
+
+	context.Add("a", 1)
+	context.Add("b", 1)
+
+	err := fmt.Errorf("Test")
+	context.Report(err, Data{"b": 2})
+	exception := <-exceptions
+
+	expectedData := Data{"a": 1, "b": 2}
+	if exception.Data["a"] != expectedData["a"] || exception.Data["b"] != expectedData["b"] {
+		t.Errorf("Expected exception data to be %v but was %v", expectedData, exception.Data)
+	}
+}
+
+type exception struct {
+	Error error
+	Data  Data
+}
+
+type channelExceptionReporter struct {
+	Channel chan *exception
+}
+
+func (c *channelExceptionReporter) Report(err error, data Data) {
+	c.Channel <- &exception{err, data}
+}

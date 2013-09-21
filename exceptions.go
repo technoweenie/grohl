@@ -54,7 +54,7 @@ func ErrorBacktraceLines(err error) []string {
 func errorBacktraceBytes(err error) [][]byte {
 	backtrace := debug.Stack()
 	all := bytes.Split(backtrace, byteLineBreak)
-	return all[4 : len(all)-1]
+	return all[10 : len(all)-1]
 }
 
 func ErrorId(err error) string {

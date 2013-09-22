@@ -78,7 +78,7 @@ func (l *BufferedLogger) Flush() {
 func (l *BufferedLogger) openStream() io.WriteCloser {
 	if l.isFile {
 		file, err := os.OpenFile(l.Filename, os.O_RDWR|os.O_APPEND|os.O_CREATE|os.O_SYNC, 0644)
-		if err != nil {
+		if err == nil {
 			return file
 		} else {
 			fmt.Printf("Error opening log file %s: %s\n", l.Filename, err.Error())

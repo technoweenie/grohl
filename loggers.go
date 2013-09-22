@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
+	"path/filepath"
+	"syscall"
 )
 
 // A really basic logger that builds lines and writes to any io.Writer.  This
@@ -11,6 +14,14 @@ import (
 type IoLogger struct {
 	stream  io.Writer
 	AddTime bool
+}
+
+func NewIoLogger(stream io.Writer) *IoLogger {
+	if stream == nil {
+		stream = os.Stdout
+	}
+
+	return &IoLogger{stream, true}
 }
 
 func (l *IoLogger) Log(data Data) error {
@@ -21,6 +32,13 @@ func (l *IoLogger) Log(data Data) error {
 
 type ChannelLogger struct {
 	channel chan Data
+}
+
+func NewChannelLogger(channel chan Data) (*ChannelLogger, chan Data) {
+	if channel == nil {
+		channel = make(chan Data)
+	}
+	return &ChannelLogger{channel}, channel
 }
 
 func (l *ChannelLogger) Log(data Data) error {
@@ -36,6 +54,39 @@ type BufferedLogger struct {
 	Fallback   io.WriteCloser
 	buffer     []byte
 	isFile     bool
+}
+
+func NewBufferedLogger(filename string, upperbound int) *BufferedLogger {
+	isFile := len(filename) > 0
+
+	if isFile {
+		os.MkdirAll(filepath.Dir(filename), 0744)
+	}
+
+	return &BufferedLogger{
+		Filename:   filename,
+		Position:   0,
+		Upperbound: upperbound,
+		AddTime:    true,
+		Fallback:   &nopcloser{os.Stdout},
+		buffer:     make([]byte, upperbound),
+		isFile:     isFile,
+	}
+}
+
+func WriteBufferedLogs(logch chan Data, filename string, upperbound int) {
+	logger := NewBufferedLogger(filename, upperbound)
+	sigch := make(chan os.Signal)
+	signal.Notify(sigch, syscall.SIGUSR1, syscall.SIGUSR2, syscall.SIGTERM, syscall.SIGQUIT)
+
+	for {
+		select {
+		case <-sigch:
+			logger.Flush()
+		case data := <-logch:
+			logger.Log(data)
+		}
+	}
 }
 
 func (l *BufferedLogger) Log(data Data) {

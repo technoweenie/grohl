@@ -13,7 +13,11 @@ type IoLogger struct {
 }
 
 func (l *IoLogger) Log(data Data) error {
-	_, err := l.stream.Write(l.BuildLog(data))
+	return l.Write(l.BuildLog(data))
+}
+
+func (l *IoLogger) Write(data []byte) err {
+	_, err := l.stream.Write(data)
 	return err
 }
 

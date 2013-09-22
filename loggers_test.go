@@ -83,7 +83,7 @@ func TestBufferedLogFallback(t *testing.T) {
 	buf := bytes.NewBufferString("")
 	logger := NewBufferedLogger("", 10)
 	logger.AddTime = false
-	logger.Fallback = &nopcloser{buf}
+	logger.Writer = &nopcloser{buf}
 
 	logger.Log(Data{"a": 1})
 	logger.Log(Data{"b": 2})
@@ -109,7 +109,7 @@ func TestBufferLongLine(t *testing.T) {
 	buf := bytes.NewBufferString("")
 	logger := NewBufferedLogger("", 1)
 	logger.AddTime = false
-	logger.Fallback = &nopcloser{buf}
+	logger.Writer = &nopcloser{buf}
 
 	logger.Log(Data{"a": 1})
 	expected := "a=1\n"

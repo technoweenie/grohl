@@ -48,32 +48,34 @@ func (l *ChannelLogger) Log(data Data) error {
 }
 
 type BufferedLogger struct {
-	Filename   string
 	Position   int
 	Upperbound int
 	AddTime    bool
 	Timeout    time.Duration
-	Fallback   io.WriteCloser
+	Writer     io.WriteCloser
 	buffer     []byte
-	isFile     bool
 }
 
 func NewBufferedLogger(filename string, upperbound int) *BufferedLogger {
-	isFile := len(filename) > 0
+	stdout := &nopcloser{os.Stdout}
+	var writer io.WriteCloser = stdout
 
-	if isFile {
-		os.MkdirAll(filepath.Dir(filename), 0744)
+	if len(filename) > 0 {
+		err := os.MkdirAll(filepath.Dir(filename), 0744)
+		if err == nil {
+			writer = &bufferedFileWriter{filename, stdout}
+		} else {
+			fmt.Printf("Error opening log file %s: %s\n", filename, err.Error())
+		}
 	}
 
 	return &BufferedLogger{
-		Filename:   filename,
 		Position:   0,
 		Upperbound: upperbound,
 		AddTime:    true,
 		Timeout:    1 * time.Minute,
-		Fallback:   &nopcloser{os.Stdout},
+		Writer:     writer,
 		buffer:     make([]byte, upperbound),
-		isFile:     isFile,
 	}
 }
 
@@ -98,10 +100,7 @@ func (l *BufferedLogger) Log(data Data) {
 }
 
 func (l *BufferedLogger) Write(data []byte) (int, error) {
-	stream := l.openStream()
-	written, err := stream.Write(data)
-	stream.Close()
-	return written, err
+	return l.Writer.Write(data)
 }
 
 func (l *BufferedLogger) Watch(logch chan Data) {
@@ -135,17 +134,30 @@ func (l *BufferedLogger) Flush() {
 	l.Position = 0
 }
 
-func (l *BufferedLogger) openStream() io.WriteCloser {
-	if l.isFile {
-		file, err := os.OpenFile(l.Filename, os.O_RDWR|os.O_APPEND|os.O_CREATE|os.O_SYNC, 0644)
-		if err == nil {
-			return file
-		} else {
-			fmt.Printf("Error opening log file %s: %s\n", l.Filename, err.Error())
-		}
+type bufferedFileWriter struct {
+	Filename string
+	Fallback io.WriteCloser
+}
+
+func (w *bufferedFileWriter) Write(data []byte) (int, error) {
+	stream := w.openStream()
+	defer stream.Close()
+	return stream.Write(data)
+}
+
+func (w *bufferedFileWriter) Close() error {
+	return nil
+}
+
+func (w *bufferedFileWriter) openStream() io.WriteCloser {
+	file, err := os.OpenFile(w.Filename, os.O_RDWR|os.O_APPEND|os.O_CREATE|os.O_SYNC, 0644)
+	if err == nil {
+		return file
+	} else {
+		fmt.Printf("Error opening log file %s: %s\n", w.Filename, err.Error())
 	}
 
-	return l.Fallback
+	return w.Fallback
 }
 
 type nopcloser struct {

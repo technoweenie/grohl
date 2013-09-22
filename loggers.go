@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
+	"time"
 )
 
 // A really basic logger that builds lines and writes to any io.Writer.  This
@@ -51,6 +52,7 @@ type BufferedLogger struct {
 	Position   int
 	Upperbound int
 	AddTime    bool
+	Timeout    time.Duration
 	Fallback   io.WriteCloser
 	buffer     []byte
 	isFile     bool
@@ -68,6 +70,7 @@ func NewBufferedLogger(filename string, upperbound int) *BufferedLogger {
 		Position:   0,
 		Upperbound: upperbound,
 		AddTime:    true,
+		Timeout:    1 * time.Minute,
 		Fallback:   &nopcloser{os.Stdout},
 		buffer:     make([]byte, upperbound),
 		isFile:     isFile,
@@ -113,6 +116,8 @@ func (l *BufferedLogger) Watch(logch chan Data) {
 			if data != nil {
 				l.Log(data)
 			}
+		case <-time.After(l.Timeout):
+			l.Flush()
 		}
 	}
 }

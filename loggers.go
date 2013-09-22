@@ -114,6 +114,9 @@ func (l *BufferedLogger) Watch(logch chan Data) {
 		case data := <-logch:
 			if data != nil {
 				l.Log(data)
+			} else {
+				l.Flush()
+				return
 			}
 		case <-time.After(l.Timeout):
 			l.Flush()

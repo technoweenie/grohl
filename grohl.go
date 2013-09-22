@@ -3,7 +3,9 @@ package grohl
 import (
 	"io"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 	"time"
 )
 
@@ -81,10 +83,18 @@ func NewBufferedLogger(filename string, upperbound int) *BufferedLogger {
 	}
 }
 
-func WriteBufferedLogs(ch chan Data, filename string, upperbound int) {
+func WriteBufferedLogs(logch chan Data, filename string, upperbound int) {
 	logger := NewBufferedLogger(filename, upperbound)
+	sigch := make(chan os.Signal)
+	signal.Notify(sigch, syscall.SIGUSR1, syscall.SIGUSR2, syscall.SIGTERM)
+
 	for {
-		logger.Log(<-ch)
+		select {
+		case <-sigch:
+			logger.Flush()
+		case data := <-logch:
+			logger.Log(data)
+		}
 	}
 }
 

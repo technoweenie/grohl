@@ -3,6 +3,7 @@ package grohl
 import (
 	"io"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -60,6 +61,31 @@ func NewIoLogger(stream io.Writer) *IoLogger {
 	}
 
 	return &IoLogger{stream, true}
+}
+
+func NewBufferedLogger(filename string, upperbound int) *BufferedLogger {
+	isFile := len(filename) > 0
+
+	if isFile {
+		os.MkdirAll(filepath.Dir(filename), 0744)
+	}
+
+	return &BufferedLogger{
+		Filename:   filename,
+		Position:   0,
+		Upperbound: upperbound,
+		AddTime:    true,
+		Fallback:   &nopcloser{os.Stdout},
+		buffer:     make([]byte, upperbound),
+		isFile:     isFile,
+	}
+}
+
+func WriteBufferedLogs(ch chan Data, filename string, upperbound int) {
+	logger := NewBufferedLogger(filename, upperbound)
+	for {
+		logger.Log(<-ch)
+	}
 }
 
 func NewContext(data Data) *Context {

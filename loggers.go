@@ -16,7 +16,7 @@ func (l *IoLogger) Log(data Data) error {
 	return l.Write(l.BuildLog(data))
 }
 
-func (l *IoLogger) Write(data []byte) err {
+func (l *IoLogger) Write(data []byte) error {
 	_, err := l.stream.Write(data)
 	return err
 }

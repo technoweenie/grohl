@@ -75,8 +75,7 @@ func NewBufferedLogger(filename string, upperbound int) *BufferedLogger {
 }
 
 func WriteBufferedLogs(logch chan Data, filename string, upperbound int) {
-	logger := NewBufferedLogger(filename, upperbound)
-	logger.Watch(logch)
+	NewBufferedLogger(filename, upperbound).Watch(logch)
 }
 
 func (l *BufferedLogger) Log(data Data) {

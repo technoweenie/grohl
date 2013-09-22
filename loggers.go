@@ -76,23 +76,12 @@ func NewBufferedLogger(filename string, upperbound int) *BufferedLogger {
 
 func WriteBufferedLogs(logch chan Data, filename string, upperbound int) {
 	logger := NewBufferedLogger(filename, upperbound)
-	sigch := make(chan os.Signal)
-	signal.Notify(sigch, syscall.SIGUSR1, syscall.SIGUSR2, syscall.SIGTERM, syscall.SIGQUIT)
-
-	for {
-		select {
-		case <-sigch:
-			logger.Flush()
-		case data := <-logch:
-			logger.Log(data)
-		}
-	}
+	logger.Watch(logch)
 }
 
 func (l *BufferedLogger) Log(data Data) {
 	line := l.BuildLog(data)
 	length := len(line)
-
 	if length > l.Upperbound {
 		l.Write(line)
 		return
@@ -108,9 +97,25 @@ func (l *BufferedLogger) Log(data Data) {
 
 func (l *BufferedLogger) Write(data []byte) (int, error) {
 	stream := l.openStream()
-	written, err := stream.Write(l.buffer[:l.Position])
+	written, err := stream.Write(data)
 	stream.Close()
 	return written, err
+}
+
+func (l *BufferedLogger) Watch(logch chan Data) {
+	sigch := make(chan os.Signal)
+	signal.Notify(sigch, syscall.SIGUSR1, syscall.SIGUSR2, syscall.SIGTERM, syscall.SIGQUIT)
+
+	for {
+		select {
+		case <-sigch:
+			l.Flush()
+		case data := <-logch:
+			if data != nil {
+				l.Log(data)
+			}
+		}
+	}
 }
 
 func (l *BufferedLogger) BuildLog(data Data) []byte {

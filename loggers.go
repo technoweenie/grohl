@@ -13,9 +13,12 @@ type IoLogger struct {
 }
 
 func (l *IoLogger) Log(data Data) error {
-	fullLine := fmt.Sprintf("%s\n", BuildLog(data, l.AddTime))
-	_, err := l.stream.Write([]byte(fullLine))
+	_, err := l.stream.Write(l.BuildLog(data))
 	return err
+}
+
+func (l *IoLogger) BuildLog(data Data) []byte {
+	return []byte(fmt.Sprintf("%s\n", BuildLog(data, l.AddTime)))
 }
 
 type ChannelLogger struct {

@@ -14,7 +14,7 @@ func TestLogsException(t *testing.T) {
 	err := fmt.Errorf("Test")
 
 	reporter.Report(err, Data{"b": 2, "c": 3, "at": "overwrite me"})
-	expected := fmt.Sprintf("a=1 b=2 c=3 at=exception class=*errors.errorString message=Test exception_id=%s", ErrorId(err))
+	expected := "a=1 b=2 c=3 at=exception class=*errors.errorString message=Test"
 	linePrefix := expected + " site="
 
 	for i, line := range strings.Split(logged(buf), "\n") {

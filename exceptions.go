@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"reflect"
 	"runtime/debug"
-	"strconv"
 )
 
 type ExceptionReporter interface {
@@ -57,16 +56,10 @@ func errorBacktraceBytes(err error) [][]byte {
 	return all[10 : len(all)-1]
 }
 
-func ErrorId(err error) string {
-	id := int(reflect.ValueOf(err).Pointer())
-	return strconv.Itoa(id)
-}
-
 func errorToMap(err error, data Data) {
 	data["at"] = "exception"
 	data["class"] = reflect.TypeOf(err).String()
 	data["message"] = err.Error()
-	data["exception_id"] = ErrorId(err)
 }
 
 var byteLineBreak = []byte{'\n'}

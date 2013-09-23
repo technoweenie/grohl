@@ -1,9 +1,22 @@
 package grohl
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 )
+
+func TestIoLog(t *testing.T) {
+	buf := bytes.NewBufferString("")
+	logger := NewIoLogger(buf)
+	logger.AddTime = false
+	logger.Log(Data{"a": 1})
+	expected := "a=1\n"
+
+	if actual := buf.String(); actual != expected {
+		t.Errorf("e: %s\na: %s", expected, actual)
+	}
+}
 
 func TestChannelLog(t *testing.T) {
 	channel := make(chan Data, 1)

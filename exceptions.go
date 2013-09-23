@@ -53,7 +53,11 @@ func ErrorBacktraceLines(err error) []string {
 func errorBacktraceBytes(err error) [][]byte {
 	backtrace := debug.Stack()
 	all := bytes.Split(backtrace, byteLineBreak)
-	return all[10 : len(all)-1]
+	if len(all) < 11 {
+		return all
+	} else {
+		return all[10 : len(all)-1]
+	}
 }
 
 func errorToMap(err error, data Data) {

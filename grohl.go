@@ -1,10 +1,6 @@
 package grohl
 
-import (
-	"io"
-	"os"
-	"time"
-)
+import "time"
 
 type Data map[string]interface{}
 
@@ -45,21 +41,6 @@ func SetLogger(logger Logger) Logger {
 	CurrentContext.Logger = logger
 
 	return logger
-}
-
-func NewChannelLogger(channel chan Data) (*ChannelLogger, chan Data) {
-	if channel == nil {
-		channel = make(chan Data)
-	}
-	return &ChannelLogger{channel}, channel
-}
-
-func NewIoLogger(stream io.Writer) *IoLogger {
-	if stream == nil {
-		stream = os.Stdout
-	}
-
-	return &IoLogger{stream, true}
 }
 
 func NewContext(data Data) *Context {

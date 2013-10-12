@@ -5,18 +5,16 @@ import (
 )
 
 func TestTimerLog(t *testing.T) {
-	context, buf := setupLogger()
+	context, buf := setupLogger(t)
 	context.Add("a", "1")
 	timer := context.Timer(Data{"b": "2"})
 	timer.Log(Data{"c": "3"})
 
-	if result := logged(buf); result != "a=1 b=2 at=start\na=1 b=2 c=3 elapsed=0.000" {
-		t.Errorf("Bad log output: %s", result)
-	}
+	buf.AssertLogged("a=1 b=2 at=start\na=1 b=2 c=3 elapsed=0.000")
 }
 
 func TestTimerLogInMS(t *testing.T) {
-	context, buf := setupLogger()
+	context, buf := setupLogger(t)
 	context.Add("a", "1")
 	timer := context.Timer(Data{"b": "2"})
 	timer.TimeUnit = "ms"
@@ -24,24 +22,22 @@ func TestTimerLogInMS(t *testing.T) {
 
 	expected := "a=1 b=2 at=start\na=1 b=2 c=3 elapsed=0.001"
 	checkedLen := len(expected) - 3
-	if result := logged(buf); result[0:checkedLen] != expected[0:checkedLen] {
+	if result := buf.String(); result[0:checkedLen] != expected[0:checkedLen] {
 		t.Errorf("Bad log output: %s", result)
 	}
 }
 
 func TestTimerFinish(t *testing.T) {
-	context, buf := setupLogger()
+	context, buf := setupLogger(t)
 	context.Add("a", "1")
 	timer := context.Timer(Data{"b": "2"})
 	timer.Finish()
 
-	if result := logged(buf); result != "a=1 b=2 at=start\na=1 b=2 at=finish elapsed=0.000" {
-		t.Errorf("Bad log output: %s", result)
-	}
+	buf.AssertLogged("a=1 b=2 at=start\na=1 b=2 at=finish elapsed=0.000")
 }
 
 func TestTimerWithStatter(t *testing.T) {
-	context, buf := setupLogger()
+	context, buf := setupLogger(t)
 	context.Add("a", "1")
 	timer := context.Timer(Data{"b": "2"})
 	statter := NewContext(nil)
@@ -52,13 +48,11 @@ func TestTimerWithStatter(t *testing.T) {
 	expected := "a=1 b=2 at=start\n"
 	expected = expected + "a=1 b=2 at=finish elapsed=0.000\n"
 	expected = expected + "metric=bucket timing=0"
-	if result := logged(buf); result != expected {
-		t.Errorf("Bad log output: %s", result)
-	}
+	buf.AssertLogged(expected)
 }
 
 func TestTimerWithContextStatter(t *testing.T) {
-	context, buf := setupLogger()
+	context, buf := setupLogger(t)
 	context.Add("a", "1")
 	context.SetStatter(context, 1.0, "bucket")
 	timer := context.Timer(Data{"b": "2"})
@@ -67,15 +61,13 @@ func TestTimerWithContextStatter(t *testing.T) {
 	expected := "a=1 b=2 at=start\n"
 	expected = expected + "a=1 b=2 at=finish elapsed=0.000\n"
 	expected = expected + "a=1 metric=bucket timing=0"
-	if result := logged(buf); result != expected {
-		t.Errorf("Bad log output: %s", result)
-	}
+	buf.AssertLogged(expected)
 }
 
 func TestTimerWithNilStatter(t *testing.T) {
 	oldlogger := CurrentContext.Logger
 
-	context, buf := setupLogger()
+	context, buf := setupLogger(t)
 	context.Add("a", "1")
 	CurrentContext.Logger = context.Logger
 	timer := context.Timer(Data{"b": "2"})
@@ -87,7 +79,5 @@ func TestTimerWithNilStatter(t *testing.T) {
 	expected := "a=1 b=2 at=start\n"
 	expected = expected + "a=1 b=2 at=finish elapsed=0.000\n"
 	expected = expected + "metric=bucket timing=0"
-	if result := logged(buf); result != expected {
-		t.Errorf("Bad log output: %s", result)
-	}
+	buf.AssertLogged(expected)
 }

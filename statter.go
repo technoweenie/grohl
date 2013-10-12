@@ -40,3 +40,27 @@ func (c *Context) Gauge(sampleRate float32, bucket string, value ...string) {
 		c.Log(Data{"metric": bucket, "gauge": v})
 	}
 }
+
+type _statter struct {
+	statter        Statter
+	statSampleRate float32
+	statBucket     string
+}
+
+func (s *_statter) SetStatter(statter Statter, sampleRate float32, bucket string) {
+	if statter == nil {
+		s.statter = CurrentStatter
+	} else {
+		s.statter = statter
+	}
+	s.statSampleRate = sampleRate
+	s.statBucket = bucket
+}
+
+func (s *_statter) Timing(dur time.Duration) {
+	if s.statter == nil {
+		return
+	}
+
+	s.statter.Timing(s.statSampleRate, s.statBucket, dur)
+}

@@ -19,7 +19,7 @@ func (c *Context) Timer(data Data) *Timer {
 
 // Writes a final log message with the elapsed time shown.
 func (t *Timer) Finish() {
-	t.Log(nil)
+	t.Log(Data{"at": "finish"})
 }
 
 // Writes a log message with extra data or the elapsed time shown.  Pass nil or
@@ -29,7 +29,6 @@ func (t *Timer) Log(data Data) error {
 		data = make(Data)
 	}
 
-	data["at"] = "finish"
 	data["elapsed"] = t.durationUnit(t.Elapsed())
 	return t.context.Log(data)
 }

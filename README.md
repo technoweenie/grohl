@@ -3,126 +3,224 @@
 Grohl is an opinionated library for outputting logs in a key=value structure.
 This event data is used to drive metrics and monitoring services.
 
-Dave Grohl is the lead singer of Foo Fighters.  I hear he's also passionate about
-event driven metrics.
+Grohl is an opinionated library for gathering metrics and data about how your
+applications are running in production.  It does this through writing logs
+in a key=value structure.  It also provides interfaces for sending exceptions
+or metrics to external services.
 
 This is a Go version of [asenchi/scrolls](https://github.com/asenchi/scrolls).
-The rest of this README is a direct rip from scrolls, with the Ruby snippets
-replaced with Go.
+The name for this library came from mashing the words "go" and "scrolls"
+together.  Also, Dave Grohl is the lead singer of Foo Fighters.  I hear he's
+even passionate about event driven metrics.
+
+## Installation
+
+    $ go get github.com/technoweenie/grohl
+
+Then import it:
+
+    import "github.com/technoweenie/grohl"
 
 ## Usage
 
-At Heroku we are big believers in "logs as data". We log everything so
-that we can act upon that event stream of logs. Internally we use logs
-to produce metrics and monitoring data that we can alert on.
+Grohl treats logs as the central authority for how an application is behaving.
+Logs are written in a key=value structure so that they are easily parsed.  If
+you use a set of common log keys, you can relate events from various services
+together.
 
-Here's an example of a log you might specify in your application:
+Here's an example log that you might write:
 
 ```go
-grohl.Log(grohl.LogData{"fn": "trap", "signal": s, "at": "exit", "status": 0})
+grohl.Log(grohl.Data{"fn": "trap", "signal": "TERM", "at": "exit", "status": 0})
 ```
 
-The output of which might be:
+The output would look something like:
 
     fn=trap signal=TERM at=exit status=0
 
-This provides a rich set of data that we can parse and act upon.
+A `*grohl.Context` stores a map of keys and values that are written with every
+log message.  You can set common keys for every request, or create a new context
+per new request or connection.
 
-A feature of Grohl is setting contexts. Grohl has two types of
-context. One is 'global_context' that prepends every log in your
-application with that data and a local 'context' which can be used,
-for example, to wrap requests with a request id.
-
-In our example above, the log message is rather generic, so in order
-to provide more context we might set a global context that links this
-log data to our application and deployment:
+You can add more context to the example above by setting up the app name and
+deployed environment.
 
 ```go
 grohl.AddContext("app", "myapp")
 grohl.AddContext("deploy", os.Getenv("DEPLOY"))
 ```
 
-This would change our log output above to:
+This changes the output from above to:
 
     app=myapp deploy=production fn=trap signal=TERM at=exit status=0
 
-If we were in a file and wanted to wrap a particular point of context
-we might also do something similar to:
+You can also create scoped Context objects.  For instance, a network server may
+want a scoped Context for each request or connection.
 
 ```go
-context := grohl.NewContext(grohl.LogData{"ns": "server"})
-context.Log(grohl.LogData{"fn": "trap", "signal": s, "at": "exit", "status": 0})
+context := grohl.NewContext(grohl.Data{"ns": "server"})
+context.Log(grohl.Data{"fn": "trap", "signal": "TERM", "at": "exit", "status": 0})
 ```
 
-This would be the output (taking into consideration our global context
-above):
+This is the output (taking the global context above into consideration):
 
     app=myapp deploy=production ns=server fn=trap signal=TERM at=exit status=0
 
-This allows us to track this log to `Server#trap` and we received a
-'TERM' signal and exited 0.
-
-As you can see we have some standard nomenclature around logging.
-Here's a cheat sheet for some of the methods we use:
+As you can see we have some standard nomenclature around logging. Here's a cheat sheet for some of the methods we use:
 
 * `app`: Application
 * `lib`: Library
 * `ns`: Namespace (Class, Module or files)
 * `fn`: Function
 * `at`: Execution point
-* `deploy`: Our deployment (typically an environment variable i.e. `DEPLOY=staging`)
-* `elapsed`: Measurements (Time)
-* `count`: Measurements (Counters)
+* `deploy`: Our deployment (typically an environment variable i.e. DEPLOY=staging)
+* `elapsed`: Measurements (Time from a Timer)
+* `metric`: The name of a Statter measurement
+* `count`: Measurements (Counters through a Statter)
+* `gauge`: Measurements (Gauges through a Statter)
+* `timing`: Measurements (Timing through a Statter)
 
-Grohl makes it easy to measure the run time of a portion of code.
-For example:
+### Loggers
+
+By default, all `*grohl.Context` objects write to STDOUT.  Grohl includes support
+for both io and channel loggers.  
 
 ```go
-timer := grohl.NewTimer(grohl.LogData{"fn": "test"})
-grohl.Log(grohl.LogData{"status": "exec"})
-// code here
-timer.Log(nil)
+writer, _ := syslog.Dial(network, raddr, syslog.LOG_INFO, tag)
+grohl.SetLogger(grohl.NewIoLogger(writer))
 ```
 
-This will output the following log:
+If you are writing to `*grohl.Context` objects in separate go routines, a
+channel logger can be used for concurrency.
 
-    fn=test at=start
-    status=exec
-    fn=test at=finish elapsed=0.300
+```go
+// you can pass in your own `chan grohl.data` too.
+chlogger, ch := grohl.NewChannelLogger(nil)
+grohl.SetLogger(chlogger)
 
-You can change the time unit that Grohl uses to "milliseconds" (the
-default is "seconds"):
+// pipe messages from the channel to a single `io.writer`:
+writer, _ := syslog.Dial(network, raddr, syslog.LOG_INFO, tag)
+logger := grohl.NewIoLogger(writer)
+
+// reads from the channel until the program dies
+go grohl.Watch(logger, ch)
+```
+
+### Statter
+
+Grohl provides a `grohl.Statter` interface based on
+[github.com/peterbourgon/g2s][g2s]:
+
+```go
+// these functions are available on a *grohl.Context too
+grohl.Counter(1.0, "my.silly.counter", 1)
+grohl.Timing(1.0, "my.silly.slow-process", time.Since(somethingBegan))
+grohl.Gauge(1.0, "my.silly.status", "green")
+```
+
+Without any setup, this outputs:
+
+```
+metric=my.silly.counter count=1
+metric=my.silly.slow-process timing=12345
+metric=my.silly.status gauge=green
+```
+
+If you import "github.com/peterbourgon/g2s", you can dial into a statsd server
+over a udp socket:
+
+```go
+statter, err := g2s.Dial("udp", "statsd.server:1234")
+if err != nil {
+  panic(err)
+}
+grohl.CurrentStatter = statter
+```
+
+Once being set up, the statter functions above will not output any logs.
+
+[g2s]: https://github.com/peterbourgon/g2s
+
+### Timing
+
+Scrolls makes it easy to measure the run time of a portion of code.
+
+```go
+// you can also create a timer from a *grohl.Context
+// timer := context.Timer(grohl.Data{"fn": "test"})
+timer := grohl.NewTimer(grohl.Data{"fn": "test"})
+grohl.Log(grohl.Data{"status": "exec"})
+timer.Finish()
+```
+
+This would output:
+
+```
+fn=test at=start
+status=exec
+fn=test at=finish elapsed=0.300
+```
+
+You can change the time unit that Scrolls uses to "milliseconds" (the default is
+"seconds"):
 
 ```go
 grohl.SetTimeUnit("ms")
+
+// or with a *grohl.Context
+context.TimeUnit = "ms"
 ```
 
-If you need multiple loggers with different contexts or time units, you can
-create them instead of going through the `grohl` functions.  The functions work
-identically on grohl loggers with the exception of `SetTimeUnit()`.  You can
-access the TimeUnit field manually.
+You can also write to a custom Statter:
 
 ```go
-buf := bytes.NewBuffer([]byte(""))
-logger := grohl.NewLogger(buf)
-logger.Log(grohl.LogData{"fn": "trap"})
+timer := grohl.NewTimer(grohl.data{"fn": "test"})
+// uses `grohl.CurrentStatter` by default
+timer.SetStatter(nil, 1.0, "my.silly.slow-process")
+timer.Finish()
 ```
 
-Grohl has a rich #parse method to handle a number of cases. Here is
-a look at some of the ways Grohl handles certain values.
-
-Time and nil:
+You can also set all `*grohl.Timer` objects to use the same statter.
 
 ```go
-grohl.Log("t": time.Date(2012, 6, 19, 11, 2, 47, 0, time.UTC), "this": nil)
+// You can call SetStatter() on a *grohl.Context to affect any *grohl.Timer
+// objects created from it.
+//
+// This affects _all_ *grohl.Timer objects.
+grohl.SetStatter(nil, 1.0, "my.silly")
 
-t=2012-06-19T11:02:47-0400 this=nil
+timer := grohl.NewTimer(grohl.data{"fn": "test"})
+
+// set just the suffix of the statter bucket set above
+timer.StatterBucketSuffix("slow-process")
+
+// overwrite the whole bucket
+timer.StatterBucket = "my.silly.slow-process"
+
+// Sample only 50% of the timings.
+timer.StatterSampleRate = 0.5
+
+timer.Finish()
 ```
 
-True/False:
+### Exception Reporting
+
+Grohl can report Go errors:
 
 ```go
-grohl.Log("that": false, "this": true)
+written, err := writer.Write(someBytes)
+if err ! nil {
+  // context has the following from above:
+  // grohl.Data{"app": "myapp", "deploy": "production", "ns": "server"}
+  context.Report(err, grohl.Data{"written": written})
+}
+```
 
-that=false this=true
+Without any exception reporter set, this logs the following:
+
+```
+app=myapp deploy=production ns=server at=exception class=*errors.errorString message="some message"
+app=myapp deploy=production ns=server at=exception class=*errors.errorString message="some message" site="stack trace line 1"
+app=myapp deploy=production ns=server at=exception class=*errors.errorString message="some message" site="stack trace line 2"
+app=myapp deploy=production ns=server at=exception class=*errors.errorString message="some message" site="stack trace line 3"
 ```

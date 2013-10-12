@@ -5,6 +5,9 @@ type Context struct {
 	Logger            Logger
 	TimeUnit          string
 	ExceptionReporter ExceptionReporter
+	statter           Statter
+	statSampleRate    float32
+	statBucket        string
 }
 
 func (c *Context) Log(data Data) error {
@@ -33,6 +36,16 @@ func (c *Context) Merge(data Data) Data {
 
 func (c *Context) Delete(key string) {
 	delete(c.data, key)
+}
+
+func (c *Context) SetStatter(statter Statter, sampleRate float32, bucket string) {
+	if statter == nil {
+		c.statter = c
+	} else {
+		c.statter = statter
+	}
+	c.statSampleRate = sampleRate
+	c.statBucket = bucket
 }
 
 func dupeMaps(maps ...Data) Data {

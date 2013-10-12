@@ -17,7 +17,11 @@ type Timer struct {
 func (c *Context) Timer(data Data) *Timer {
 	context := c.New(data)
 	context.Log(Data{"at": "start"})
-	return &Timer{Started: time.Now(), TimeUnit: context.TimeUnit, context: context}
+	timer := &Timer{Started: time.Now(), TimeUnit: context.TimeUnit, context: context}
+	if c.statter != nil {
+		timer.SetStatter(c.statter, c.statSampleRate, c.statBucket)
+	}
+	return timer
 }
 
 // Writes a final log message with the elapsed time shown.

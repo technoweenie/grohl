@@ -40,7 +40,7 @@ func (c *Context) Delete(key string) {
 
 func (c *Context) SetStatter(statter Statter, sampleRate float32, bucket string) {
 	if statter == nil {
-		c.statter = c
+		c.statter = CurrentStatter
 	} else {
 		c.statter = statter
 	}

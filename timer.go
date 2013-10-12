@@ -55,7 +55,7 @@ func (t *Timer) Elapsed() time.Duration {
 
 func (t *Timer) SetStatter(statter Statter, sampleRate float32, bucket string) {
 	if statter == nil {
-		t.statter = t.context
+		t.statter = CurrentStatter
 	} else {
 		t.statter = statter
 	}

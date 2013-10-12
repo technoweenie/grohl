@@ -19,7 +19,7 @@ func (c *Context) Timer(data Data) *Timer {
 		Started:  time.Now(),
 		TimeUnit: context.TimeUnit,
 		context:  context,
-		_statter: c._statter,
+		_statter: c._statter.dup(),
 	}
 }
 

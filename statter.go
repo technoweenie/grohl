@@ -64,3 +64,7 @@ func (s *_statter) Timing(dur time.Duration) {
 
 	s.statter.Timing(s.statSampleRate, s.statBucket, dur)
 }
+
+func (s *_statter) dup() *_statter {
+	return &_statter{s.statter, s.statSampleRate, s.statBucket}
+}

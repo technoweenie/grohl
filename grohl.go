@@ -9,7 +9,7 @@ type Logger interface {
 }
 
 var CurrentLogger Logger = NewIoLogger(nil)
-var CurrentContext = &Context{make(Data), CurrentLogger, "s", nil}
+var CurrentContext = newContext(make(Data), CurrentLogger, "s", nil)
 var CurrentStatter Statter = CurrentContext
 
 func Log(data Data) {

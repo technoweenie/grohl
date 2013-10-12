@@ -1,7 +1,9 @@
 package grohl
 
 import (
+	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -42,9 +44,9 @@ func (c *Context) Gauge(sampleRate float32, bucket string, value ...string) {
 }
 
 type _statter struct {
-	statter        Statter
-	statSampleRate float32
-	statBucket     string
+	statter           Statter
+	StatterSampleRate float32
+	StatterBucket     string
 }
 
 func (s *_statter) SetStatter(statter Statter, sampleRate float32, bucket string) {
@@ -53,8 +55,16 @@ func (s *_statter) SetStatter(statter Statter, sampleRate float32, bucket string
 	} else {
 		s.statter = statter
 	}
-	s.statSampleRate = sampleRate
-	s.statBucket = bucket
+	s.StatterSampleRate = sampleRate
+	s.StatterBucket = bucket
+}
+
+func (s *_statter) StatterBucketSuffix(suffix string) {
+	sep := "."
+	if strings.HasSuffix(s.StatterBucket, ".") {
+		sep = ""
+	}
+	s.StatterBucket = s.StatterBucket + fmt.Sprintf("%s%s", sep, suffix)
 }
 
 func (s *_statter) Timing(dur time.Duration) {
@@ -62,9 +72,9 @@ func (s *_statter) Timing(dur time.Duration) {
 		return
 	}
 
-	s.statter.Timing(s.statSampleRate, s.statBucket, dur)
+	s.statter.Timing(s.StatterSampleRate, s.StatterBucket, dur)
 }
 
 func (s *_statter) dup() *_statter {
-	return &_statter{s.statter, s.statSampleRate, s.statBucket}
+	return &_statter{s.statter, s.StatterSampleRate, s.StatterBucket}
 }

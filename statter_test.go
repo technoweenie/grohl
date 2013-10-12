@@ -25,3 +25,16 @@ func TestLogsGauge(t *testing.T) {
 	s.Gauge(1.0, "a", "1", "2")
 	buf.AssertLogged("metric=a gauge=1\nmetric=a gauge=2")
 }
+
+var suffixTests = []string{"abc", "abc."}
+
+func TestSetsBucketSuffix(t *testing.T) {
+	s, _ := setupLogger(t)
+	for _, prefix := range suffixTests {
+		s.StatterBucket = prefix
+		s.StatterBucketSuffix("def")
+		if s.StatterBucket != "abc.def" {
+			t.Errorf("bucket is wrong after prefix %s: %s", prefix, s.StatterBucket)
+		}
+	}
+}

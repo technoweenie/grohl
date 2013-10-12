@@ -5,21 +5,30 @@ import (
 )
 
 type Timer struct {
-	Started  time.Time
-	TimeUnit string
-	context  *Context
+	Started        time.Time
+	TimeUnit       string
+	context        *Context
+	statter        Statter
+	statSampleRate float32
+	statBucket     string
 }
 
 // A timer tracks the duration spent since its creation.
 func (c *Context) Timer(data Data) *Timer {
 	context := c.New(data)
 	context.Log(Data{"at": "start"})
-	return &Timer{time.Now(), context.TimeUnit, context}
+	return &Timer{Started: time.Now(), TimeUnit: context.TimeUnit, context: context}
 }
 
 // Writes a final log message with the elapsed time shown.
 func (t *Timer) Finish() {
-	t.Log(Data{"at": "finish"})
+	dur := t.Elapsed()
+
+	t.Log(Data{"at": "finish", "elapsed": t.durationUnit(dur)})
+
+	if t.statter != nil {
+		t.statter.Timing(t.statSampleRate, t.statBucket, dur)
+	}
 }
 
 // Writes a log message with extra data or the elapsed time shown.  Pass nil or
@@ -29,12 +38,25 @@ func (t *Timer) Log(data Data) error {
 		data = make(Data)
 	}
 
-	data["elapsed"] = t.durationUnit(t.Elapsed())
+	if _, ok := data["elapsed"]; !ok {
+		data["elapsed"] = t.durationUnit(t.Elapsed())
+	}
+
 	return t.context.Log(data)
 }
 
 func (t *Timer) Elapsed() time.Duration {
 	return time.Since(t.Started)
+}
+
+func (t *Timer) SetStatter(statter Statter, sampleRate float32, bucket string) {
+	if statter == nil {
+		t.statter = t.context
+	} else {
+		t.statter = statter
+	}
+	t.statSampleRate = sampleRate
+	t.statBucket = bucket
 }
 
 func (t *Timer) durationUnit(dur time.Duration) float64 {

@@ -55,6 +55,10 @@ func DeleteContext(key string) {
 	CurrentContext.Delete(key)
 }
 
+func SetStatter(statter Statter, sampleRate float32, bucket string) {
+	CurrentContext.SetStatter(statter, sampleRate, bucket)
+}
+
 func NewTimer(data Data) *Timer {
 	return CurrentContext.Timer(data)
 }

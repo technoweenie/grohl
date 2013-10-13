@@ -18,4 +18,4 @@ Then import it:
 
     import "github.com/technoweenie/grohl"
 
-See the [godocs]
+See the [godocs](http://godoc.org/github.com/technoweenie/grohl) for more.

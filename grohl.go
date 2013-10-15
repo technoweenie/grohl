@@ -21,7 +21,9 @@ Here's an example log that you might write:
 
 The output would look something like:
 
-	fn=trap signal=TERM at=exit status=0
+	now=2013-10-14T15:04:05-0700 fn=trap signal=TERM at=exit status=0
+
+Note: Other examples leave out the "now" keyword for clarity.
 
 A *grohl.Context stores a map of keys and values that are written with every
 log message.  You can set common keys for every request, or create a new context
@@ -48,6 +50,9 @@ This is the output (taking the global context above into consideration):
 	app=myapp deploy=production ns=server fn=trap signal=TERM at=exit status=0
 
 As you can see we have some standard nomenclature around logging. Here's a cheat sheet for some of the methods we use:
+
+* now: The current timestamp, automatically set by an IoLogger.  Can be disabled
+if IoLogger.AddTime is disabled.
 
 * app: Application
 

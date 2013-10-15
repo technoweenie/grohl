@@ -1,10 +1,10 @@
 package grohl
 
 type Context struct {
-	data              Data
-	Logger            Logger
-	TimeUnit          string
-	ExceptionReporter ExceptionReporter
+	data          Data
+	Logger        Logger
+	TimeUnit      string
+	ErrorReporter ErrorReporter
 }
 
 func (c *Context) Log(data Data) error {
@@ -16,7 +16,7 @@ func (c *Context) log(data Data) error {
 }
 
 func (c *Context) New(data Data) *Context {
-	return &Context{c.Merge(data), c.Logger, c.TimeUnit, c.ExceptionReporter}
+	return &Context{c.Merge(data), c.Logger, c.TimeUnit, c.ErrorReporter}
 }
 
 func (c *Context) Add(key string, value interface{}) {

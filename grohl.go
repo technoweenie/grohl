@@ -115,7 +115,7 @@ over a udp socket:
 
 Once being set up, the statter functions above will not output any logs.
 
-Scrolls makes it easy to measure the run time of a portion of code.
+Grohl makes it easy to measure the run time of a portion of code.
 
 	// you can also create a timer from a *grohl.Context
 	// timer := context.Timer(grohl.Data{"fn": "test"})
@@ -129,7 +129,7 @@ This would output:
 	status=exec
 	fn=test at=finish elapsed=0.300
 
-You can change the time unit that Scrolls uses to "milliseconds" (the default is
+You can change the time unit that Grohl uses to "milliseconds" (the default is
 "seconds"):
 
 	grohl.SetTimeUnit("ms")

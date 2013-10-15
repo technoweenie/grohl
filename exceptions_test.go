@@ -7,7 +7,7 @@ import (
 )
 
 func TestLogsException(t *testing.T) {
-	reporter, buf := setupLogger()
+	reporter, buf := setupLogger(t)
 	reporter.Add("a", 1)
 	reporter.Add("b", 1)
 
@@ -17,7 +17,7 @@ func TestLogsException(t *testing.T) {
 	expected := "a=1 b=2 c=3 at=exception class=*errors.errorString message=Test"
 	linePrefix := expected + " site="
 
-	for i, line := range strings.Split(logged(buf), "\n") {
+	for i, line := range strings.Split(buf.String(), "\n") {
 		if i == 0 {
 			if line != expected {
 				t.Errorf("Line does not match:\ne: %s\na: %s", expected, line)

@@ -9,7 +9,7 @@ type Logger interface {
 }
 
 var CurrentLogger Logger = NewIoLogger(nil)
-var CurrentContext = &Context{make(Data), CurrentLogger, "s", nil}
+var CurrentContext = newContext(make(Data), CurrentLogger, "s", nil)
 var CurrentStatter Statter = CurrentContext
 
 func Log(data Data) {
@@ -53,6 +53,10 @@ func AddContext(key string, value interface{}) {
 
 func DeleteContext(key string) {
 	CurrentContext.Delete(key)
+}
+
+func SetStatter(statter Statter, sampleRate float32, bucket string) {
+	CurrentContext.SetStatter(statter, sampleRate, bucket)
 }
 
 func NewTimer(data Data) *Timer {

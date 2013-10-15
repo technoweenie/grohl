@@ -8,18 +8,27 @@ type Timer struct {
 	Started  time.Time
 	TimeUnit string
 	context  *Context
+	*_statter
 }
 
 // A timer tracks the duration spent since its creation.
 func (c *Context) Timer(data Data) *Timer {
 	context := c.New(data)
 	context.Log(Data{"at": "start"})
-	return &Timer{time.Now(), context.TimeUnit, context}
+	return &Timer{
+		Started:  time.Now(),
+		TimeUnit: context.TimeUnit,
+		context:  context,
+		_statter: c._statter.dup(),
+	}
 }
 
 // Writes a final log message with the elapsed time shown.
 func (t *Timer) Finish() {
-	t.Log(nil)
+	dur := t.Elapsed()
+
+	t.Log(Data{"at": "finish", "elapsed": t.durationUnit(dur)})
+	t._statter.Timing(dur)
 }
 
 // Writes a log message with extra data or the elapsed time shown.  Pass nil or
@@ -29,8 +38,10 @@ func (t *Timer) Log(data Data) error {
 		data = make(Data)
 	}
 
-	data["at"] = "finish"
-	data["elapsed"] = t.durationUnit(t.Elapsed())
+	if _, ok := data["elapsed"]; !ok {
+		data["elapsed"] = t.durationUnit(t.Elapsed())
+	}
+
 	return t.context.Log(data)
 }
 

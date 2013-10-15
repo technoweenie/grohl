@@ -46,8 +46,8 @@ func TestTimerWithStatter(t *testing.T) {
 	timer.Finish()
 
 	expected := "a=1 b=2 at=start\n"
-	expected = expected + "a=1 b=2 at=finish elapsed=0.000\n"
-	expected = expected + "metric=bucket timing=0"
+	expected = expected + "metric=bucket timing=0\n"
+	expected = expected + "a=1 b=2 at=finish elapsed=0.000"
 	buf.AssertLogged(expected)
 }
 
@@ -60,8 +60,8 @@ func TestTimerWithContextStatter(t *testing.T) {
 	timer.Finish()
 
 	expected := "a=1 b=2 at=start\n"
-	expected = expected + "a=1 b=2 at=finish elapsed=0.000\n"
-	expected = expected + "a=1 metric=bucket2 timing=0"
+	expected = expected + "a=1 metric=bucket2 timing=0\n"
+	expected = expected + "a=1 b=2 at=finish elapsed=0.000"
 	buf.AssertLogged(expected)
 
 	if context.StatterBucket == "bucket2" {
@@ -82,7 +82,7 @@ func TestTimerWithNilStatter(t *testing.T) {
 	CurrentContext.Logger = oldlogger
 
 	expected := "a=1 b=2 at=start\n"
-	expected = expected + "a=1 b=2 at=finish elapsed=0.000\n"
-	expected = expected + "metric=bucket timing=0"
+	expected = expected + "metric=bucket timing=0\n"
+	expected = expected + "a=1 b=2 at=finish elapsed=0.000"
 	buf.AssertLogged(expected)
 }

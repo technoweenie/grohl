@@ -1,10 +1,10 @@
 package grohl
 
 type Context struct {
-	data              Data
-	Logger            Logger
-	TimeUnit          string
-	ExceptionReporter ExceptionReporter
+	data          Data
+	Logger        Logger
+	TimeUnit      string
+	ErrorReporter ErrorReporter
 	*_statter
 }
 
@@ -17,7 +17,7 @@ func (c *Context) log(data Data) error {
 }
 
 func (c *Context) New(data Data) *Context {
-	return newContext(c.Merge(data), c.Logger, c.TimeUnit, c.ExceptionReporter)
+	return newContext(c.Merge(data), c.Logger, c.TimeUnit, c.ErrorReporter)
 }
 
 func (c *Context) Add(key string, value interface{}) {
@@ -46,12 +46,12 @@ func dupeMaps(maps ...Data) Data {
 	return merged
 }
 
-func newContext(data Data, logger Logger, timeunit string, reporter ExceptionReporter) *Context {
+func newContext(data Data, logger Logger, timeunit string, reporter ErrorReporter) *Context {
 	return &Context{
-		data:              data,
-		Logger:            logger,
-		TimeUnit:          timeunit,
-		ExceptionReporter: reporter,
-		_statter:          &_statter{},
+		data:          data,
+		Logger:        logger,
+		TimeUnit:      timeunit,
+		ErrorReporter: reporter,
+		_statter:      &_statter{},
 	}
 }

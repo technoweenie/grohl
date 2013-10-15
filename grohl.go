@@ -265,6 +265,6 @@ func TimeUnit() string {
 	return CurrentContext.TimeUnit
 }
 
-func SetExceptionReporter(reporter ExceptionReporter) {
-	CurrentContext.ExceptionReporter = reporter
+func SetErrorReporter(reporter ErrorReporter) {
+	CurrentContext.ErrorReporter = reporter
 }

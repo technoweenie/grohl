@@ -35,23 +35,34 @@ func TestChannelLog(t *testing.T) {
 	}
 }
 
-func setupLogger() (*Context, chan Data) {
-	ch := make(chan Data, 100)
-	logger, _ := NewChannelLogger(ch)
-	context := NewContext(nil)
-	context.Logger = logger
-	return context, ch
+type loggerBuffer struct {
+	channel chan Data
+	t       *testing.T
 }
 
-func logged(ch chan Data) string {
-	close(ch)
-	lines := make([]string, len(ch))
+func (b *loggerBuffer) String() string {
+	close(b.channel)
+	lines := make([]string, len(b.channel))
 	i := 0
 
-	for data := range ch {
+	for data := range b.channel {
 		lines[i] = BuildLog(data, false)
 		i = i + 1
 	}
 
 	return strings.Join(lines, "\n")
+}
+
+func (b *loggerBuffer) AssertLogged(expected string) {
+	if result := b.String(); result != expected {
+		b.t.Errorf("Bad log output: %s", result)
+	}
+}
+
+func setupLogger(t *testing.T) (*Context, *loggerBuffer) {
+	ch := make(chan Data, 100)
+	logger, _ := NewChannelLogger(ch)
+	context := NewContext(nil)
+	context.Logger = logger
+	return context, &loggerBuffer{ch, t}
 }

@@ -2,7 +2,7 @@
 
 Grohl is an opinionated library for gathering metrics and data about how your
 applications are running in production.  It does this through writing logs
-in a key=value structure.  It also provides interfaces for sending exceptions
+in a key=value structure.  It also provides interfaces for sending stacktraces
 or metrics to external services.
 
 This is a Go version of https://github.com/asenchi/scrolls. The name for this
@@ -174,12 +174,18 @@ Grohl can report Go errors:
 		context.Report(err, grohl.Data{"written": written})
 	}
 
-Without any exception reporter set, this logs the following:
+Without any ErrorReporter set, this logs the following:
 
 	app=myapp deploy=production ns=server at=exception class=*errors.errorString message="some message"
 	app=myapp deploy=production ns=server at=exception class=*errors.errorString message="some message" site="stack trace line 1"
 	app=myapp deploy=production ns=server at=exception class=*errors.errorString message="some message" site="stack trace line 2"
 	app=myapp deploy=production ns=server at=exception class=*errors.errorString message="some message" site="stack trace line 3"
+
+You can set the default ErrorReporter too:
+
+	myReporter := myreporter.New()
+	grohl.SetErrorReporter(myReporter)
+
 */
 package grohl
 

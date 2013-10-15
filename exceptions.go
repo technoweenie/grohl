@@ -6,17 +6,17 @@ import (
 	"runtime/debug"
 )
 
-type ExceptionReporter interface {
+type ErrorReporter interface {
 	Report(err error, data Data) error
 }
 
-// Implementation of ExceptionReporter that writes to a grohl logger.
+// Implementation of ErrorReporter that writes to a grohl logger.
 func (c *Context) Report(err error, data Data) error {
 	merged := c.Merge(data)
 	errorToMap(err, merged)
 
-	if c.ExceptionReporter != nil {
-		return c.ExceptionReporter.Report(err, merged)
+	if c.ErrorReporter != nil {
+		return c.ErrorReporter.Report(err, merged)
 	} else {
 		var logErr error
 		logErr = c.log(merged)

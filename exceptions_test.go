@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestLogsException(t *testing.T) {
+func TestLogsError(t *testing.T) {
 	reporter, buf := setupLogger()
 	reporter.Add("a", 1)
 	reporter.Add("b", 1)
@@ -33,32 +33,32 @@ func TestLogsException(t *testing.T) {
 func TestCustomReporterMergesDataWithContext(t *testing.T) {
 	context := NewContext(nil)
 
-	exceptions := make(chan *exception, 1)
-	context.ExceptionReporter = &channelExceptionReporter{exceptions}
+	errors := make(chan *reportedError, 1)
+	context.ErrorReporter = &channelErrorReporter{errors}
 
 	context.Add("a", 1)
 	context.Add("b", 1)
 
 	err := fmt.Errorf("Test")
 	context.Report(err, Data{"b": 2})
-	exception := <-exceptions
+	reportedErr := <-errors
 
 	expectedData := Data{"a": 1, "b": 2}
-	if exception.Data["a"] != expectedData["a"] || exception.Data["b"] != expectedData["b"] {
-		t.Errorf("Expected exception data to be %v but was %v", expectedData, exception.Data)
+	if reportedErr.Data["a"] != expectedData["a"] || reportedErr.Data["b"] != expectedData["b"] {
+		t.Errorf("Expected error data to be %v but was %v", expectedData, reportedErr.Data)
 	}
 }
 
-type exception struct {
+type reportedError struct {
 	Error error
 	Data  Data
 }
 
-type channelExceptionReporter struct {
-	Channel chan *exception
+type channelErrorReporter struct {
+	Channel chan *reportedError
 }
 
-func (c *channelExceptionReporter) Report(err error, data Data) error {
-	c.Channel <- &exception{err, data}
+func (c *channelErrorReporter) Report(err error, data Data) error {
+	c.Channel <- &reportedError{err, data}
 	return nil
 }

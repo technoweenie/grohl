@@ -17,7 +17,7 @@ func (c *Context) log(data Data) error {
 }
 
 func (c *Context) New(data Data) *Context {
-	return newContext(c.Merge(data), c.Logger, c.TimeUnit, c.ErrorReporter)
+	return newContext(c.Merge(data), c.Logger, c.TimeUnit, c.ErrorReporter, c._statter)
 }
 
 func (c *Context) Add(key string, value interface{}) {
@@ -46,12 +46,12 @@ func dupeMaps(maps ...Data) Data {
 	return merged
 }
 
-func newContext(data Data, logger Logger, timeunit string, reporter ErrorReporter) *Context {
+func newContext(data Data, logger Logger, timeunit string, reporter ErrorReporter, statter *_statter) *Context {
 	return &Context{
 		data:          data,
 		Logger:        logger,
 		TimeUnit:      timeunit,
 		ErrorReporter: reporter,
-		_statter:      &_statter{},
+		_statter:      statter,
 	}
 }

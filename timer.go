@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// A Timer tracks the duration spent since its creation.
 type Timer struct {
 	Started  time.Time
 	TimeUnit string
@@ -11,7 +12,7 @@ type Timer struct {
 	*_statter
 }
 
-// A timer tracks the duration spent since its creation.
+// Creates a Timer from the current Context, with the given key/value data.
 func (c *Context) Timer(data Data) *Timer {
 	context := c.New(data)
 	context.Log(Data{"at": "start"})
@@ -23,13 +24,13 @@ func (c *Context) Timer(data Data) *Timer {
 	}
 }
 
-// Writes a final log message with the elapsed time shown.
+// Finish writes a final log message with the elapsed time shown.
 func (t *Timer) Finish() {
 	t.Log(Data{"at": "finish"})
 }
 
-// Writes a log message with extra data or the elapsed time shown.  Pass nil or
-// use Finish() if there is no extra data.
+// Log writes a log message with extra data or the elapsed time shown.  Pass nil
+// or use Finish() if there is no extra data.
 func (t *Timer) Log(data Data) error {
 	if data == nil {
 		data = make(Data)
@@ -45,6 +46,7 @@ func (t *Timer) Log(data Data) error {
 	return t.context.Log(data)
 }
 
+// Elapsed returns the duration since the Timer was created.
 func (t *Timer) Elapsed() time.Duration {
 	return time.Since(t.Started)
 }

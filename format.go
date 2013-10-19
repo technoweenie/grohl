@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-// Builds a log message as a single line from log data.
+// BuildLog assembles a log message from the key/value data.  If addTime is true,
+// the current timestamp is logged with the "now" key.
 func BuildLog(data Data, addTime bool) string {
 	index := 0
 	extraRows := 0
@@ -30,6 +31,7 @@ func BuildLog(data Data, addTime bool) string {
 	return strings.Join(pieces, space)
 }
 
+// Format converts the value into a string for the Logger output.
 func Format(value interface{}) string {
 	if value == nil {
 		return "nil"

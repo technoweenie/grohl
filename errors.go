@@ -10,7 +10,7 @@ type ErrorReporter interface {
 	Report(err error, data Data) error
 }
 
-// Implementation of ErrorReporter that writes to a grohl logger.
+// Report writes the error to the ErrorReporter, or logs it if there is none.
 func (c *Context) Report(err error, data Data) error {
 	merged := c.Merge(data)
 	errorToMap(err, merged)
@@ -36,11 +36,13 @@ func (c *Context) Report(err error, data Data) error {
 	}
 }
 
+// ErrorBacktrace creates a backtrace of the call stack.
 func ErrorBacktrace(err error) string {
 	lines := errorBacktraceBytes(err)
 	return string(bytes.Join(lines, byteLineBreak))
 }
 
+// ErrorBacktraceLines creates a backtrace of the call stack, split into lines.
 func ErrorBacktraceLines(err error) []string {
 	byteLines := errorBacktraceBytes(err)
 	lines := make([]string, len(byteLines))

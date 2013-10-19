@@ -50,30 +50,19 @@ This is the output (taking the global context above into consideration):
 
 As you can see we have some standard nomenclature around logging. Here's a cheat sheet for some of the methods we use:
 
-* now: The current timestamp, automatically set by an IoLogger.  Can be disabled
-if IoLogger.AddTime is disabled.
-
-* app: Application
-
-* lib: Library
-
-* ns: Namespace (Class, Module or files)
-
-* fn: Function
-
-* at: Execution point
-
-* deploy: Our deployment (typically an environment variable i.e. DEPLOY=staging)
-
-* elapsed: Measurements (Time from a Timer)
-
-* metric: The name of a Statter measurement
-
-* count: Measurements (Counters through a Statter)
-
-* gauge: Measurements (Gauges through a Statter)
-
-* timing: Measurements (Timing through a Statter)
+  * now: The current timestamp, automatically set by an IoLogger.  Can be disabled
+  if IoLogger.AddTime is disabled.
+  * app: Application
+  * lib: Library
+  * ns: Namespace (Class, Module or files)
+  * fn: Function
+  * at: Execution point
+  * deploy: Our deployment (typically an environment variable i.e. DEPLOY=staging)
+  * elapsed: Measurements (Time from a Timer)
+  * metric: The name of a Statter measurement
+  * count: Measurements (Counters through a Statter)
+  * gauge: Measurements (Gauges through a Statter)
+  * timing: Measurements (Timing through a Statter)
 
 By default, all *grohl.Context objects write to STDOUT.  Grohl includes support
 for both io and channel loggers.

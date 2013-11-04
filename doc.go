@@ -5,9 +5,8 @@ in a key=value structure.  It also provides interfaces for sending stacktraces
 or metrics to external services.
 
 This is a Go version of https://github.com/asenchi/scrolls. The name for this
-library came from mashing the words "go" and "scrolls" together.  Even Dave
-Grohl, lead singer of Foo Fighters, is passionate about event driven
-metrics.
+library came from mashing the words "go" and "scrolls" together.  Also, Dave 
+Grohl (lead singer of Foo Fighters) is passionate about event driven metrics.
 
 Grohl treats logs as the central authority for how an application is behaving.
 Logs are written in a key=value structure so that they are easily parsed.  If

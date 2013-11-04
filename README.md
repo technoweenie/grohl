@@ -7,8 +7,12 @@ or metrics to external services.
 
 This is a Go version of [asenchi/scrolls](https://github.com/asenchi/scrolls).
 The name for this library came from mashing the words "go" and "scrolls"
-together.  Even Dave Grohl, lead singer of Foo Fighters, is passionate about
+together.  Also, Dave Grohl (lead singer of Foo Fighters) is passionate about
 event driven metrics.
+
+See this [blog post][blog] for the rationale behind this library.
+
+[blog]: http://techno-weenie.net/2013/11/2/key-value-logs-in-go/
 
 ## Installation
 

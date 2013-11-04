@@ -53,7 +53,7 @@ This writes a log on every HTTP request like:
     now=2013-10-14T15:04:05-0700 app=example path=/foo
 
 See the [godocs](http://godoc.org/github.com/technoweenie/grohl) for details on
-metrics, statsd integegration, and custom error reporters.
+metrics, statsd integration, and custom error reporters.
 
 ## Note on Patches/Pull Requests
 

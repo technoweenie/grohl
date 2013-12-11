@@ -15,7 +15,6 @@ type Statter interface {
 	Gauge(sampleRate float32, bucket string, value ...string)
 }
 
-
 // Counter writes a counter value to the Context.
 func (c *Context) Counter(sampleRate float32, bucket string, n ...int) {
 	if rand.Float32() > sampleRate {

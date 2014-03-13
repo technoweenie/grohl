@@ -1,6 +1,9 @@
 package grohl
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 // Data is the map used to specify the key/value pairs for a logged message.
 type Data map[string]interface{}
@@ -12,6 +15,7 @@ type Logger interface {
 
 // CurrentLogger is the default Logger used by Log, Report.
 var CurrentLogger Logger = NewIoLogger(nil)
+var currentLoggerMutex sync.Mutex
 
 // CurrentContext is the default Context used by Log, Report, AddContext,
 // DeleteContext, NewTimer.
@@ -56,8 +60,10 @@ func SetLogger(logger Logger) Logger {
 		logger = NewIoLogger(nil)
 	}
 
+	currentLoggerMutex.Lock()
+	defer currentLoggerMutex.Unlock()
 	CurrentLogger = logger
-	CurrentContext.Logger = logger
+	CurrentContext.SetLogger(logger)
 
 	return logger
 }

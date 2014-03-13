@@ -1,6 +1,7 @@
 package grohl
 
 import (
+	"bytes"
 	"testing"
 )
 
@@ -16,4 +17,14 @@ func TestContext(t *testing.T) {
 	if log := BuildLog(merged, false); log != expected {
 		t.Errorf("Expected: %s\nActual: %s", expected, log)
 	}
+}
+
+func TestContextHasNoRace(t *testing.T) {
+	c := make(chan int)
+	go func() {
+		SetLogger(NewIoLogger(new(bytes.Buffer)))
+		c <- 1
+	}()
+	SetLogger(NewIoLogger(new(bytes.Buffer)))
+	<-c
 }

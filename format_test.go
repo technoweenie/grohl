@@ -103,9 +103,7 @@ var examples = map[string]Data{
 
 func TestFormat(t *testing.T) {
 	for expected, data := range examples {
-		if actual := BuildLog(data, false); expected != actual {
-			t.Errorf("Expected %s\nGot: %s", expected, actual)
-		}
+		AssertData(t, expected, data)
 	}
 }
 
@@ -117,5 +115,21 @@ func TestFormatWithTime(t *testing.T) {
 	}
 	if !strings.HasSuffix(actual, " fn=time test=1") {
 		t.Errorf("Invalid suffix: %s", actual)
+	}
+}
+
+func AssertLog(t *testing.T, expected string, ctx *Context) {
+	AssertData(t, expected, ctx.Merge(nil))
+}
+
+func AssertData(t *testing.T, expected string, data Data) {
+	if actual := BuildLog(data, false); expected != actual {
+		t.Errorf("Expected %s\nfrom: %v\nGot: %s", expected, data, actual)
+	}
+}
+
+func AssertString(t *testing.T, expected, actual string) {
+	if expected != actual {
+		t.Errorf("Expected %s\nGot: %s", expected, actual)
 	}
 }

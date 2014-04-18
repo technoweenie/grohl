@@ -4,16 +4,28 @@ import (
 	"testing"
 )
 
-func TestContext(t *testing.T) {
-	empty := NewContext(nil)
+func TestContextMerge(t *testing.T) {
+	orig := NewContext(nil)
 
-	empty.Add("a", 1)
-	empty.Add("b", 1)
+	orig.Add("a", 1)
+	orig.Add("b", 1)
 
-	merged := empty.Merge(Data{"b": 2, "c": 3})
+	merged := orig.Merge(Data{"b": 2, "c": 3})
 
-	expected := "a=1 b=2 c=3"
-	if log := BuildLog(merged, false); log != expected {
-		t.Errorf("Expected: %s\nActual: %s", expected, log)
-	}
+	AssertData(t, "a=1 b=2 c=3", merged)
+	AssertLog(t, "a=1 b=1", orig)
+}
+
+func TestContextStatterPrefix(t *testing.T) {
+	ctx1 := NewContext(nil)
+	ctx2 := NewContext(nil)
+	ctx3 := ctx1.New(nil)
+	AssertString(t, "", ctx1.StatterBucket)
+	AssertString(t, "", ctx2.StatterBucket)
+	AssertString(t, "", ctx3.StatterBucket)
+
+	ctx1.SetStatter(nil, 1.0, "abc")
+	AssertString(t, "abc", ctx1.StatterBucket)
+	AssertString(t, "", ctx2.StatterBucket)
+	AssertString(t, "", ctx3.StatterBucket)
 }

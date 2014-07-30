@@ -95,7 +95,7 @@ func TestFormatWithTime(t *testing.T) {
 		t.Errorf("Invalid prefix: %s", line.full)
 	}
 
-	AssertBuildLine(t, line, "fn=time", "test=1", "~now=")
+	AssertBuiltLine(t, line, "fn=time", "test=1", "~now=")
 }
 
 func AssertLog(t *testing.T, ctx *Context, expected ...string) {
@@ -103,10 +103,10 @@ func AssertLog(t *testing.T, ctx *Context, expected ...string) {
 }
 
 func AssertData(t *testing.T, data Data, expected ...string) {
-	AssertBuildLine(t, buildLogLine(data), expected...)
+	AssertBuiltLine(t, buildLogLine(data), expected...)
 }
 
-func AssertBuildLine(t *testing.T, line builtLogLine, expected ...string) {
+func AssertBuiltLine(t *testing.T, line builtLogLine, expected ...string) {
 	for _, pair := range expected {
 		if strings.HasPrefix(pair, "~") {
 			pair = pair[1:len(pair)]

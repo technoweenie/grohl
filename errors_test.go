@@ -26,9 +26,9 @@ func TestLogsError(t *testing.T) {
 
 	for i, line := range buf.Lines() {
 		if i == 0 {
-			AssertBuildLine(t, line, firstRow...)
+			AssertBuiltLine(t, line, firstRow...)
 		} else {
-			AssertBuildLine(t, line, otherRows...)
+			AssertBuiltLine(t, line, otherRows...)
 		}
 	}
 }

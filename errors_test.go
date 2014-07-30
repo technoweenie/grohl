@@ -2,7 +2,6 @@ package grohl
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 )
 
@@ -14,18 +13,22 @@ func TestLogsError(t *testing.T) {
 	err := fmt.Errorf("Test")
 
 	reporter.Report(err, Data{"b": 2, "c": 3, "at": "overwrite me"})
-	expected := "a=1 b=2 c=3 at=exception class=*errors.errorString message=Test"
-	linePrefix := expected + " site="
+	firstRow := []string{
+		"a=1",
+		"b=2",
+		"c=3",
+		"at=exception",
+		"class=*errors.errorString",
+		"message=Test",
+	}
 
-	for i, line := range strings.Split(buf.String(), "\n") {
+	otherRows := append(firstRow, "site=")
+
+	for i, line := range buf.Lines() {
 		if i == 0 {
-			if line != expected {
-				t.Errorf("Line does not match:\ne: %s\na: %s", expected, line)
-			}
+			AssertBuildLine(t, line, firstRow)
 		} else {
-			if !strings.HasPrefix(line, linePrefix) {
-				t.Errorf("Line %d does not match:\ne: %s\na: %s", i+1, linePrefix, line)
-			}
+			AssertBuildLine(t, line, otherRows)
 		}
 	}
 }

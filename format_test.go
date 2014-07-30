@@ -98,14 +98,18 @@ func AssertLog(t *testing.T, ctx *Context, expected []string) {
 }
 
 func AssertData(t *testing.T, data Data, expected []string) {
-	pairs, line := buildLogMap(data)
+	AssertBuildLine(t, buildLogLine(data), expected)
+}
+
+func AssertBuildLine(t *testing.T, line builtLogLine, expected []string) {
 	for _, pair := range expected {
-		if _, ok := pairs[pair]; !ok {
-			t.Errorf("Expected pair '%s' in %s", pair, line)
+		if _, ok := line.pairs[pair]; !ok {
+			t.Errorf("Expected pair '%s' in %s", pair, line.full)
 		}
 	}
-	if expectedLen := len(expected); expectedLen != len(pairs) {
-		t.Errorf("Expected %d pairs in %s", expectedLen, line)
+
+	if expectedLen := len(expected); expectedLen != len(line.pairs) {
+		t.Errorf("Expected %d pairs in %s", expectedLen, line.full)
 	}
 }
 
@@ -115,11 +119,16 @@ func AssertString(t *testing.T, expected, actual string) {
 	}
 }
 
-func buildLogMap(d Data) (map[string]bool, string) {
+type builtLogLine struct {
+	pairs map[string]bool
+	full  string
+}
+
+func buildLogLine(d Data) builtLogLine {
 	m := make(map[string]bool)
 	parts := BuildLogParts(d, false)
 	for _, pair := range parts {
 		m[pair] = true
 	}
-	return m, strings.Join(parts, space)
+	return builtLogLine{m, strings.Join(parts, space)}
 }

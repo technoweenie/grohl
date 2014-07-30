@@ -11,6 +11,10 @@ import (
 // BuildLog assembles a log message from the key/value data.  If addTime is true,
 // the current timestamp is logged with the "now" key.
 func BuildLog(data Data, addTime bool) string {
+	return strings.Join(BuildLogParts(data, addTime), space)
+}
+
+func BuildLogParts(data Data, addTime bool) []string {
 	index := 0
 	extraRows := 0
 	if addTime {
@@ -28,7 +32,7 @@ func BuildLog(data Data, addTime bool) string {
 		pieces[0] = fmt.Sprintf("now=%s", time.Now().UTC().Format(timeLayout))
 	}
 
-	return strings.Join(pieces, space)
+	return pieces
 }
 
 // Format converts the value into a string for the Logger output.

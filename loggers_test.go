@@ -2,7 +2,6 @@ package grohl
 
 import (
 	"bytes"
-	"strings"
 	"testing"
 )
 
@@ -38,24 +37,46 @@ func TestChannelLog(t *testing.T) {
 type loggerBuffer struct {
 	channel chan Data
 	t       *testing.T
+	lines   []builtLogLine
+	index   int
 }
 
-func (b *loggerBuffer) String() string {
-	close(b.channel)
-	lines := make([]string, len(b.channel))
-	i := 0
+func (b *loggerBuffer) Lines() []builtLogLine {
+	if b.lines == nil {
+		close(b.channel)
+		b.lines = make([]builtLogLine, len(b.channel))
+		i := 0
 
-	for data := range b.channel {
-		lines[i] = BuildLog(data, false)
-		i = i + 1
+		for data := range b.channel {
+			b.lines[i] = buildLogLine(data)
+			i = i + 1
+		}
 	}
 
-	return strings.Join(lines, "\n")
+	return b.lines
 }
 
-func (b *loggerBuffer) AssertLogged(expected string) {
-	if result := b.String(); result != expected {
-		b.t.Errorf("Bad log output: %s", result)
+func (b *loggerBuffer) AssertLine(parts ...string) {
+	lines := b.Lines()
+	if b.index < 0 || b.index >= len(lines) {
+		b.t.Errorf("No line %d", b.index)
+		return
+	}
+
+	AssertBuiltLine(b.t, lines[b.index], parts...)
+	b.index += 1
+}
+
+func (b *loggerBuffer) AssertEOF() {
+	lines := b.Lines()
+	if b.index < 0 {
+		b.t.Errorf("Invalid index %d", b.index)
+		return
+	}
+
+	if b.index < len(lines) {
+		b.t.Errorf("Not EOF, on line %d", b.index)
+		return
 	}
 }
 
@@ -64,5 +85,5 @@ func setupLogger(t *testing.T) (*Context, *loggerBuffer) {
 	logger, _ := NewChannelLogger(ch)
 	context := NewContext(nil)
 	context.Logger = logger
-	return context, &loggerBuffer{ch, t}
+	return context, &loggerBuffer{channel: ch, t: t}
 }

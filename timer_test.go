@@ -10,7 +10,9 @@ func TestTimerLog(t *testing.T) {
 	timer := context.Timer(Data{"b": "2"})
 	timer.Log(Data{"c": "3"})
 
-	buf.AssertLogged("a=1 b=2 at=start\na=1 b=2 c=3 elapsed=0.000")
+	buf.AssertLine("a=1", "b=2", "at=start")
+	buf.AssertLine("a=1", "b=2", "c=3", "elapsed=0.000")
+	buf.AssertEOF()
 }
 
 func TestTimerLogInMS(t *testing.T) {
@@ -20,11 +22,9 @@ func TestTimerLogInMS(t *testing.T) {
 	timer.TimeUnit = "ms"
 	timer.Log(Data{"c": "3"})
 
-	expected := "a=1 b=2 at=start\na=1 b=2 c=3 elapsed=0.001"
-	checkedLen := len(expected) - 3
-	if result := buf.String(); result[0:checkedLen] != expected[0:checkedLen] {
-		t.Errorf("Bad log output: %s", result)
-	}
+	buf.AssertLine("a=1", "b=2", "at=start")
+	buf.AssertLine("a=1", "b=2", "c=3", "~elapsed=0.00")
+	buf.AssertEOF()
 }
 
 func TestTimerFinish(t *testing.T) {
@@ -33,7 +33,9 @@ func TestTimerFinish(t *testing.T) {
 	timer := context.Timer(Data{"b": "2"})
 	timer.Finish()
 
-	buf.AssertLogged("a=1 b=2 at=start\na=1 b=2 at=finish elapsed=0.000")
+	buf.AssertLine("a=1", "b=2", "at=start")
+	buf.AssertLine("a=1", "b=2", "at=finish", "elapsed=0.000")
+	buf.AssertEOF()
 }
 
 func TestTimerWithStatter(t *testing.T) {
@@ -45,10 +47,10 @@ func TestTimerWithStatter(t *testing.T) {
 	timer.SetStatter(statter, 1.0, "bucket")
 	timer.Finish()
 
-	expected := "a=1 b=2 at=start\n"
-	expected = expected + "metric=bucket timing=0\n"
-	expected = expected + "a=1 b=2 at=finish elapsed=0.000"
-	buf.AssertLogged(expected)
+	buf.AssertLine("a=1", "b=2", "at=start")
+	buf.AssertLine("metric=bucket", "timing=0")
+	buf.AssertLine("a=1", "b=2", "at=finish", "elapsed=0.000")
+	buf.AssertEOF()
 }
 
 func TestTimerWithContextStatter(t *testing.T) {
@@ -59,10 +61,10 @@ func TestTimerWithContextStatter(t *testing.T) {
 	timer.StatterBucket = "bucket2"
 	timer.Finish()
 
-	expected := "a=1 b=2 at=start\n"
-	expected = expected + "a=1 metric=bucket2 timing=0\n"
-	expected = expected + "a=1 b=2 at=finish elapsed=0.000"
-	buf.AssertLogged(expected)
+	buf.AssertLine("a=1", "b=2", "at=start")
+	buf.AssertLine("a=1", "metric=bucket2", "timing=0")
+	buf.AssertLine("a=1", "b=2", "at=finish", "elapsed=0.000")
+	buf.AssertEOF()
 
 	if context.StatterBucket == "bucket2" {
 		t.Errorf("Context's stat bucket was changed")
@@ -80,9 +82,8 @@ func TestTimerWithNilStatter(t *testing.T) {
 	timer.Finish()
 
 	CurrentContext.Logger = oldlogger
-
-	expected := "a=1 b=2 at=start\n"
-	expected = expected + "metric=bucket timing=0\n"
-	expected = expected + "a=1 b=2 at=finish elapsed=0.000"
-	buf.AssertLogged(expected)
+	buf.AssertLine("a=1", "b=2", "at=start")
+	buf.AssertLine("metric=bucket", "timing=0")
+	buf.AssertLine("a=1", "b=2", "at=finish", "elapsed=0.000")
+	buf.AssertEOF()
 }

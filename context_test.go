@@ -12,8 +12,8 @@ func TestContextMerge(t *testing.T) {
 
 	merged := orig.Merge(Data{"b": 2, "c": 3})
 
-	AssertData(t, merged, []string{"a=1", "b=2", "c=3"})
-	AssertLog(t, orig, []string{"a=1", "b=1"})
+	AssertData(t, merged, "a=1", "b=2", "c=3")
+	AssertLog(t, orig, "a=1", "b=1")
 }
 
 func TestContextStatterPrefix(t *testing.T) {

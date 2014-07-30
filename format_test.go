@@ -78,7 +78,7 @@ var expectations = [][]string{
 
 func TestFormat(t *testing.T) {
 	for i, actual := range actuals {
-		AssertData(t, actual, expectations[i])
+		AssertData(t, actual, expectations[i]...)
 	}
 }
 
@@ -95,18 +95,18 @@ func TestFormatWithTime(t *testing.T) {
 		t.Errorf("Invalid prefix: %s", line.full)
 	}
 
-	AssertBuildLine(t, line, []string{"fn=time", "test=1", "~now="})
+	AssertBuildLine(t, line, "fn=time", "test=1", "~now=")
 }
 
-func AssertLog(t *testing.T, ctx *Context, expected []string) {
-	AssertData(t, ctx.Merge(nil), expected)
+func AssertLog(t *testing.T, ctx *Context, expected ...string) {
+	AssertData(t, ctx.Merge(nil), expected...)
 }
 
-func AssertData(t *testing.T, data Data, expected []string) {
-	AssertBuildLine(t, buildLogLine(data), expected)
+func AssertData(t *testing.T, data Data, expected ...string) {
+	AssertBuildLine(t, buildLogLine(data), expected...)
 }
 
-func AssertBuildLine(t *testing.T, line builtLogLine, expected []string) {
+func AssertBuildLine(t *testing.T, line builtLogLine, expected ...string) {
 	for _, pair := range expected {
 		if strings.HasPrefix(pair, "~") {
 			pair = pair[1:len(pair)]

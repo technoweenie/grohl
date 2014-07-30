@@ -46,6 +46,11 @@ func (t *Timer) Log(data Data) error {
 	return t.context.Log(data)
 }
 
+// Add adds the key and value to the Timer's Context.
+func (t *Timer) Add(key string, value interface{}) {
+	t.context.Add(key, value)
+}
+
 // Elapsed returns the duration since the Timer was created.
 func (t *Timer) Elapsed() time.Duration {
 	return time.Since(t.Started)

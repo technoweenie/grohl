@@ -8,10 +8,11 @@ func TestTimerLog(t *testing.T) {
 	context, buf := setupLogger(t)
 	context.Add("a", "1")
 	timer := context.Timer(Data{"b": "2"})
-	timer.Log(Data{"c": "3"})
+	timer.Add("c", "3")
+	timer.Log(Data{"d": "4"})
 
 	buf.AssertLine("a=1", "b=2", "at=start")
-	buf.AssertLine("a=1", "b=2", "c=3", "elapsed=0.000")
+	buf.AssertLine("a=1", "b=2", "c=3", "d=4", "elapsed=0.000")
 	buf.AssertEOF()
 }
 
@@ -31,10 +32,11 @@ func TestTimerFinish(t *testing.T) {
 	context, buf := setupLogger(t)
 	context.Add("a", "1")
 	timer := context.Timer(Data{"b": "2"})
+	timer.Add("c", "3")
 	timer.Finish()
 
 	buf.AssertLine("a=1", "b=2", "at=start")
-	buf.AssertLine("a=1", "b=2", "at=finish", "elapsed=0.000")
+	buf.AssertLine("a=1", "b=2", "c=3", "at=finish", "elapsed=0.000")
 	buf.AssertEOF()
 }
 

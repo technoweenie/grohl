@@ -84,13 +84,18 @@ func TestFormat(t *testing.T) {
 
 func TestFormatWithTime(t *testing.T) {
 	data := Data{"fn": "time", "test": 1}
-	actual := BuildLog(data, true)
-	if !strings.HasPrefix(actual, "now=") {
-		t.Errorf("Invalid prefix: %s", actual)
+	m := make(map[string]bool)
+	parts := BuildLogParts(data, true)
+	for _, pair := range parts {
+		m[pair] = true
 	}
-	if !strings.HasSuffix(actual, " fn=time test=1") {
-		t.Errorf("Invalid suffix: %s", actual)
+	line := builtLogLine{m, strings.Join(parts, space)}
+
+	if !strings.HasPrefix(line.full, "now=") {
+		t.Errorf("Invalid prefix: %s", line.full)
 	}
+
+	AssertBuildLine(t, line, []string{"fn=time", "test=1", "~now="})
 }
 
 func AssertLog(t *testing.T, ctx *Context, expected []string) {
@@ -103,8 +108,22 @@ func AssertData(t *testing.T, data Data, expected []string) {
 
 func AssertBuildLine(t *testing.T, line builtLogLine, expected []string) {
 	for _, pair := range expected {
-		if _, ok := line.pairs[pair]; !ok {
-			t.Errorf("Expected pair '%s' in %s", pair, line.full)
+		if strings.HasPrefix(pair, "~") {
+			pair = pair[1:len(pair)]
+			found := false
+			for actual, _ := range line.pairs {
+				if !found {
+					found = strings.HasPrefix(actual, pair)
+				}
+			}
+
+			if !found {
+				t.Errorf("Expected partial pair ~ '%s' in %s", pair, line.full)
+			}
+		} else {
+			if _, ok := line.pairs[pair]; !ok {
+				t.Errorf("Expected pair '%s' in %s", pair, line.full)
+			}
 		}
 	}
 

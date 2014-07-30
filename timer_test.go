@@ -23,7 +23,7 @@ func TestTimerLogInMS(t *testing.T) {
 	timer.Log(Data{"c": "3"})
 
 	buf.AssertLine("a=1", "b=2", "at=start")
-	buf.AssertLine("a=1", "b=2", "c=3", "elapsed=0.001")
+	buf.AssertLine("a=1", "b=2", "c=3", "~elapsed=0.00")
 	buf.AssertEOF()
 }
 

@@ -45,9 +45,11 @@ func ErrorBacktrace(err error) string {
 // ErrorBacktraceLines creates a backtrace of the call stack, split into lines.
 func ErrorBacktraceLines(err error) []string {
 	byteLines := errorBacktraceBytes(err)
-	lines := make([]string, len(byteLines))
-	for i, byteline := range byteLines {
-		lines[i] = string(byteline)
+	lines := make([]string, 0, len(byteLines))
+
+	// skip top two frames which are this method and `errorBacktraceBytes`
+	for i := 2; i < len(byteLines); i++ {
+		lines = append(lines, string(byteLines[i]))
 	}
 	return lines
 }

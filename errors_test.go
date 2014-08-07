@@ -22,7 +22,7 @@ func TestLogsError(t *testing.T) {
 		"message=Test",
 	}
 
-	otherRows := append(firstRow, "site=")
+	otherRows := append(firstRow, "~site=")
 
 	for i, line := range buf.Lines() {
 		if i == 0 {

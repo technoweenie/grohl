@@ -38,8 +38,7 @@ func (c *Context) Report(err error, data Data) error {
 
 // ErrorBacktrace creates a backtrace of the call stack.
 func ErrorBacktrace(err error) string {
-	lines := errorBacktraceBytes(err)
-	return string(bytes.Join(lines, byteLineBreak))
+	return string(debug.Stack())
 }
 
 // ErrorBacktraceLines creates a backtrace of the call stack, split into lines.
@@ -55,9 +54,7 @@ func ErrorBacktraceLines(err error) []string {
 }
 
 func errorBacktraceBytes(err error) [][]byte {
-	backtrace := debug.Stack()
-	all := bytes.Split(backtrace, byteLineBreak)
-	return all
+	return bytes.Split(debug.Stack(), byteLineBreak)
 }
 
 func errorToMap(err error, data Data) {

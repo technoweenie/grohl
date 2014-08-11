@@ -101,8 +101,8 @@ func TestLogsWrappedError(t *testing.T) {
 		"c=3",
 		"d=4",
 		"at=exception",
-		"class=*grohl.Error",
-		"message=wat",
+		"class=*grohl.Err",
+		"message=sup",
 	}
 
 	otherRows := append(firstRow, "~site=")

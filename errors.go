@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-type Error struct {
+type Err struct {
 	Message    string
 	reportable bool
 	InnerError error
@@ -18,16 +18,16 @@ type Error struct {
 
 type HttpError struct {
 	StatusCode int
-	*Error
+	*Err
 }
 
 // NewError wraps an error with the error's message.
-func NewError(err error) *Error {
+func NewError(err error) *Err {
 	return NewErrorf(err, "")
 }
 
 // NewErrorf wraps an error with a formatted message.
-func NewErrorf(err error, format string, a ...interface{}) *Error {
+func NewErrorf(err error, format string, a ...interface{}) *Err {
 	var msg string
 	if len(format) > 0 {
 		msg = fmt.Sprintf(format, a...)
@@ -35,7 +35,7 @@ func NewErrorf(err error, format string, a ...interface{}) *Error {
 		msg = err.Error()
 	}
 
-	return &Error{
+	return &Err{
 		Message:    msg,
 		reportable: true,
 		InnerError: err,
@@ -60,28 +60,36 @@ func NewHttpErrorf(err error, status int, format string, a ...interface{}) *Http
 
 // Error returns the error message.  This will be the inner error's message,
 // unless a formatted message is provided from Errorf().
-func (e *Error) Error() string {
+func (e *Err) Error() string {
+	if e.InnerError != nil {
+		return e.InnerError.Error()
+	}
 	return e.Message
 }
 
 // Stack returns the runtime stack stored with this Error.
-func (e *Error) Stack() []byte {
+func (e *Err) Stack() []byte {
 	return e.stack
 }
 
 // Data returns the error's current grohl.Data context.
-func (e *Error) Data() Data {
+func (e *Err) Data() Data {
 	return e.data
 }
 
 // Reportable returns whether this error should be sent to the grohl
 // ErrorReporter.
-func (e *Error) Reportable() bool {
+func (e *Err) Reportable() bool {
 	return e.reportable
 }
 
+// ErrorMessage returns a user-visible error message.
+func (e *Err) ErrorMessage() string {
+	return e.Message
+}
+
 // Add adds the key and value to this error's context.
-func (e *Error) Add(key string, value interface{}) {
+func (e *Err) Add(key string, value interface{}) {
 	if e.data == nil {
 		e.data = Data{}
 	}
@@ -89,14 +97,14 @@ func (e *Error) Add(key string, value interface{}) {
 }
 
 // Delete removes the key from this error's context.
-func (e *Error) Delete(key string) {
+func (e *Err) Delete(key string) {
 	if e.data != nil {
 		delete(e.data, key)
 	}
 }
 
 // SetReportable sets whether the ErrorReporter should ignore this error.
-func (e *Error) SetReportable(v bool) {
+func (e *Err) SetReportable(v bool) {
 	e.reportable = v
 }
 

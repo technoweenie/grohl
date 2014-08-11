@@ -41,6 +41,11 @@ func (c *Context) Merge(data Data) Data {
 	}
 }
 
+// Data returns the Context's current Data.
+func (c *Context) Data() Data {
+	return c.data
+}
+
 // Delete removes the key from the Context's data.
 func (c *Context) Delete(key string) {
 	delete(c.data, key)

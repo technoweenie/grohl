@@ -84,6 +84,38 @@ func TestWrapNilErrorWithMessage(t *testing.T) {
 	}
 }
 
+func TestLogsWrappedError(t *testing.T) {
+	err := errors.New("sup")
+	e := NewErrorf(err, "wat")
+	e.Add("b", 2)
+	e.Add("c", 2)
+
+	reporter, buf := setupLogger(t)
+	reporter.Add("a", 1)
+	reporter.Add("b", 1)
+
+	reporter.Report(e, Data{"c": 3, "d": 4, "at": "overwrite"})
+	firstRow := []string{
+		"a=1",
+		"b=2",
+		"c=3",
+		"d=4",
+		"at=exception",
+		"class=*grohl.Error",
+		"message=wat",
+	}
+
+	otherRows := append(firstRow, "~site=")
+
+	for i, line := range buf.Lines() {
+		if i == 0 {
+			AssertBuiltLine(t, line, firstRow...)
+		} else {
+			AssertBuiltLine(t, line, otherRows...)
+		}
+	}
+}
+
 func TestLogsError(t *testing.T) {
 	reporter, buf := setupLogger(t)
 	reporter.Add("a", 1)

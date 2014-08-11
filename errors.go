@@ -11,7 +11,7 @@ type Error struct {
 	Message    string
 	reportable bool
 	InnerError error
-	Data       Data
+	data       Data
 	stack      []byte
 }
 
@@ -38,7 +38,7 @@ func NewErrorf(err error, format string, a ...interface{}) *Error {
 		Message:    msg,
 		reportable: true,
 		InnerError: err,
-		Data:       Data{},
+		data:       nil,
 		stack:      Stack(),
 	}
 }
@@ -68,8 +68,30 @@ func (e *Error) Stack() []byte {
 	return e.stack
 }
 
+// Data returns the error's current grohl.Data context.
+func (e *Error) Data() Data {
+	return e.data
+}
+
+// Reportable returns whether this error should be sent to the grohl
+// ErrorReporter.
 func (e *Error) Reportable() bool {
 	return e.reportable
+}
+
+// Add adds the key and value to this error's context.
+func (e *Error) Add(key string, value interface{}) {
+	if e.data == nil {
+		e.data = Data{}
+	}
+	e.data[key] = value
+}
+
+// Delete removes the key from this error's context.
+func (e *Error) Delete(key string) {
+	if e.data != nil {
+		delete(e.data, key)
+	}
 }
 
 // Stack returns the current runtime stack (up to 1MB).
@@ -85,7 +107,25 @@ type ErrorReporter interface {
 
 // Report writes the error to the ErrorReporter, or logs it if there is none.
 func (c *Context) Report(err error, data Data) error {
-	merged := c.Merge(data)
+	if rErr, ok := err.(reportableError); ok {
+		if rErr.Reportable() == false {
+			return nil
+		}
+	}
+
+	dataMaps := make([]Data, 1, 3)
+	dataMaps[0] = c.Data()
+	if gErr, ok := err.(grohlError); ok {
+		if errData := gErr.Data(); errData != nil {
+			dataMaps = append(dataMaps, errData)
+		}
+	}
+
+	if data != nil {
+		dataMaps = append(dataMaps, data)
+	}
+
+	merged := dupeMaps(dataMaps...)
 	errorToMap(err, merged)
 
 	if c.ErrorReporter != nil {
@@ -128,6 +168,14 @@ func ErrorBacktraceLines(err error) []string {
 
 type stackedError interface {
 	Stack() []byte
+}
+
+type reportableError interface {
+	Reportable() bool
+}
+
+type grohlError interface {
+	Data() Data
 }
 
 func errorStack(err error) []byte {

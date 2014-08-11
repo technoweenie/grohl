@@ -1,9 +1,88 @@
 package grohl
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 )
+
+func TestWrapHttpError(t *testing.T) {
+	err := errors.New("sup")
+	e := NewHttpError(err, 0)
+	if e.Message != "sup" {
+		t.Errorf("Unexpected error message: %s", e.Message)
+	}
+
+	if e.StatusCode != 500 {
+		t.Errorf("Unexpected status code: %d", e.StatusCode)
+	}
+
+	if e.InnerError != err {
+		t.Errorf("Unexpected inner error: %v", e.InnerError)
+	}
+}
+
+func TestWrapHttpErrorWithStatus(t *testing.T) {
+	err := errors.New("sup")
+	e := NewHttpError(err, 409)
+	if e.Message != "sup" {
+		t.Errorf("Unexpected error message: %s", e.Message)
+	}
+
+	if e.StatusCode != 409 {
+		t.Errorf("Unexpected status code: %d", e.StatusCode)
+	}
+
+	if e.InnerError != err {
+		t.Errorf("Unexpected inner error: %v", e.InnerError)
+	}
+}
+
+func TestWrapError(t *testing.T) {
+	err := errors.New("sup")
+	e := NewError(err)
+	if e.Message != "sup" {
+		t.Errorf("Unexpected error message: %s", e.Message)
+	}
+
+	if e.InnerError != err {
+		t.Errorf("Unexpected inner error: %v", e.InnerError)
+	}
+}
+
+func TestWrapErrorWithMessage(t *testing.T) {
+	err := errors.New("sup")
+	e := NewErrorf(err, "nuff said, %s", "bub")
+	if e.Message != "nuff said, bub" {
+		t.Errorf("Unexpected error message: %s", e.Message)
+	}
+
+	if e.InnerError != err {
+		t.Errorf("Unexpected inner error: %v", e.InnerError)
+	}
+}
+
+func TestWrapNilError(t *testing.T) {
+	e := NewError(nil)
+	if e.Message != "" {
+		t.Errorf("Expected empty error message: %s", e.Message)
+	}
+
+	if e.InnerError != nil {
+		t.Errorf("Expected nil inner error: %v", e.InnerError)
+	}
+}
+
+func TestWrapNilErrorWithMessage(t *testing.T) {
+	e := NewErrorf(nil, "nuff said, %s", "bub")
+	if e.Message != "nuff said, bub" {
+		t.Errorf("Unexpected error message: %s", e.Message)
+	}
+
+	if e.InnerError != nil {
+		t.Errorf("Expected nil inner error: %v", e.InnerError)
+	}
+}
 
 func TestLogsError(t *testing.T) {
 	reporter, buf := setupLogger(t)

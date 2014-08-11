@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"runtime"
+	"sync"
 )
 
 type Error struct {
@@ -94,10 +95,22 @@ func (e *Error) Delete(key string) {
 	}
 }
 
+// SetReportable sets whether the ErrorReporter should ignore this error.
+func (e *Error) SetReportable(v bool) {
+	e.reportable = v
+}
+
+var stackPool = sync.Pool{
+	New: func() interface{} {
+		return make([]byte, 1024*1024)
+	},
+}
+
 // Stack returns the current runtime stack (up to 1MB).
 func Stack() []byte {
-	stackBuf := make([]byte, 1024*1024)
+	stackBuf := stackPool.Get().([]byte)
 	written := runtime.Stack(stackBuf, false)
+	stackPool.Put(stackBuf)
 	return stackBuf[:written]
 }
 

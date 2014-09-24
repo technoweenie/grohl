@@ -57,11 +57,7 @@ type _statter struct {
 
 // SetStatter sets a Statter to be used in Timer Log() calls.
 func (s *_statter) SetStatter(statter Statter, sampleRate float32, bucket string) {
-	if statter == nil {
-		s.statter = CurrentStatter
-	} else {
-		s.statter = statter
-	}
+	s.statter = statter
 	s.StatterSampleRate = sampleRate
 	s.StatterBucket = bucket
 }
@@ -70,6 +66,11 @@ func (s *_statter) SetStatter(statter Statter, sampleRate float32, bucket string
 // called with bucket of "foo", then StatterBucketSuffix("bar") changes it to
 // "foo.bar".
 func (s *_statter) StatterBucketSuffix(suffix string) {
+	if len(s.StatterBucket) == 0 {
+		s.StatterBucket = suffix
+		return
+	}
+
 	sep := "."
 	if strings.HasSuffix(s.StatterBucket, ".") {
 		sep = ""
@@ -80,7 +81,7 @@ func (s *_statter) StatterBucketSuffix(suffix string) {
 // Timing sends the timing to the configured Statter.
 func (s *_statter) Timing(dur time.Duration) {
 	if s.statter == nil {
-		return
+		s.statter = CurrentStatter
 	}
 
 	s.statter.Timing(s.StatterSampleRate, s.StatterBucket, dur)

@@ -40,6 +40,22 @@ func TestTimerFinish(t *testing.T) {
 	buf.AssertEOF()
 }
 
+func TestTimerWithCurrentStatter(t *testing.T) {
+	context, buf := setupLogger(t)
+	context.Add("a", "1")
+	timer := context.Timer(Data{"b": "2"})
+	timer.StatterBucketSuffix("bucket")
+
+	oldStatter := CurrentStatter
+	CurrentStatter = context
+	timer.Finish()
+	CurrentStatter = oldStatter
+
+	buf.AssertLine("a=1", "b=2", "at=start")
+	buf.AssertLine("a=1", "metric=bucket", "timing=0")
+	buf.AssertLine("a=1", "b=2", "at=finish", "elapsed=0.000")
+}
+
 func TestTimerWithStatter(t *testing.T) {
 	context, buf := setupLogger(t)
 	context.Add("a", "1")

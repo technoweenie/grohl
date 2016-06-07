@@ -17,6 +17,7 @@ type ExampleStruct struct {
 var actuals = []Data{
 	Data{"fn": "string", "test": "hi"},
 	Data{"fn": "stringspace", "test": "a b"},
+	Data{"fn": "stringline", "test": "a b\nc"},
 	Data{"fn": "stringslasher", "test": `slasher \\`},
 	Data{"fn": "stringeqspace", "test": "x=4, y=10"},
 	Data{"fn": "stringeq", "test": "x=4,y=10"},
@@ -48,6 +49,7 @@ var actuals = []Data{
 var expectations = [][]string{
 	[]string{"fn=string", "test=hi"},
 	[]string{"fn=stringspace", `test="a b"`},
+	[]string{"fn=stringline", `test="a b|c"`},
 	[]string{`fn=stringslasher`, `test="slasher \\\\"`},
 	[]string{`fn=stringeqspace`, `test="x=4, y=10"`},
 	[]string{`fn=stringeq`, `test="x=4,y=10"`},

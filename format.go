@@ -65,6 +65,7 @@ func formatString(value interface{}) string {
 		return "nil"
 	}
 
+	str = strings.Replace(str, "\n", "|", -1)
 	if idx := strings.Index(str, " "); idx != -1 {
 		hasSingle := strings.Index(str, sQuote) != -1
 		hasDouble := strings.Index(str, dQuote) != -1

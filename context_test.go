@@ -1,6 +1,7 @@
 package grohl
 
 import (
+	"bytes"
 	"testing"
 )
 
@@ -28,4 +29,14 @@ func TestContextStatterPrefix(t *testing.T) {
 	AssertString(t, "abc", ctx1.StatterBucket)
 	AssertString(t, "", ctx2.StatterBucket)
 	AssertString(t, "", ctx3.StatterBucket)
+}
+
+func TestContextHasNoRace(t *testing.T) {
+	c := make(chan int)
+	go func() {
+		SetLogger(NewIoLogger(new(bytes.Buffer)))
+		c <- 1
+	}()
+	SetLogger(NewIoLogger(new(bytes.Buffer)))
+	<-c
 }

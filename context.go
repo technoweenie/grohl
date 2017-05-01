@@ -1,10 +1,15 @@
 package grohl
 
+import (
+	"sync"
+)
+
 // A Context holds default key/value data that merges with the data every Log()
 // call receives.
 type Context struct {
 	data          Data
 	Logger        Logger
+	LoggerMutex   sync.Mutex
 	TimeUnit      string
 	ErrorReporter ErrorReporter
 	*_statter
@@ -13,10 +18,20 @@ type Context struct {
 // Log merges the given data with the Context's data, and passes it to the
 // Logger.
 func (c *Context) Log(data Data) error {
+	c.LoggerMutex.Lock()
+	defer c.LoggerMutex.Unlock()
 	return c.Logger.Log(c.Merge(data))
 }
 
+func (c *Context) SetLogger(logger Logger) {
+	c.LoggerMutex.Lock()
+	defer c.LoggerMutex.Unlock()
+	c.Logger = logger
+}
+
 func (c *Context) log(data Data) error {
+	c.LoggerMutex.Lock()
+	defer c.LoggerMutex.Unlock()
 	return c.Logger.Log(data)
 }
 
